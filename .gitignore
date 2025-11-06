@@ -1,4 +1,5 @@
 *.env 
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -6,3 +7,19 @@ __pycache__/
 .env
 *.sqlite3
 logs/
+*.db
+*.sqlite3
+*.log
+
+# Virtual environment
+venv/
+env/
+
+# VS Code
+.vscode/
+
+# Frontend (Node/React)
+node_modules/
+dist/
+build/
+coverage/
