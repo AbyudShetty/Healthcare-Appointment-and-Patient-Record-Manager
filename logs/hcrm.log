@@ -1,1 +1,68 @@
 ECHO is off.
+{"time": "2025-11-08 15:32:42,103", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:33:23,882", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:46:21,238", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:46:24,285", "level": "ERROR", "message": ""GET / HTTP/1.1" 500 59"}
+{"time": "2025-11-08 15:46:24,399", "level": "ERROR", "message": ""GET /favicon.ico HTTP/1.1" 500 59"}
+{"time": "2025-11-08 15:47:01,094", "level": "INFO", "message": "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\hcrm_backend\settings.py changed, reloading."}
+{"time": "2025-11-08 15:47:01,953", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:47:08,001", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:47:12,062", "level": "ERROR", "message": ""GET / HTTP/1.1" 500 59"}
+{"time": "2025-11-08 15:47:12,202", "level": "ERROR", "message": ""GET /favicon.ico HTTP/1.1" 500 59"}
+{"time": "2025-11-08 15:47:18,243", "level": "INFO", "message": "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\hcrm_backend\settings.py changed, reloading."}
+{"time": "2025-11-08 15:47:23,878", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:47:27,261", "level": "ERROR", "message": ""GET / HTTP/1.1" 500 59"}
+{"time": "2025-11-08 15:47:27,395", "level": "ERROR", "message": ""GET /favicon.ico HTTP/1.1" 500 59"}
+{"time": "2025-11-08 15:48:14,682", "level": "INFO", "message": "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\hcrm_backend\settings.py changed, reloading."}
+{"time": "2025-11-08 15:48:16,951", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:48:44,528", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:49:04,071", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:50:19,103", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:57:09,908", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:57:18,271", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:59:24,488", "level": "INFO", "message": "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\patients\views.py changed, reloading."}
+{"time": "2025-11-08 15:59:27,275", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 15:59:34,151", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 16:03:05,292", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 16:50:50,888", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 16:53:50,822", "level": "INFO", "message": "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\appointments\urls.py changed, reloading."}
+{"time": "2025-11-08 16:53:51,776", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 16:53:54,507", "level": "INFO", "message": "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\appointments\urls.py changed, reloading."}
+{"time": "2025-11-08 16:53:55,322", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 16:54:28,774", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 16:54:37,515", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 16:55:30,724", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-08 16:55:35,259", "level": "WARNING", "message": "Not Found: /"}
+{"time": "2025-11-08 16:55:35,260", "level": "WARNING", "message": ""GET / HTTP/1.1" 404 2528"}
+{"time": "2025-11-08 16:55:35,448", "level": "WARNING", "message": "Not Found: /favicon.ico"}
+{"time": "2025-11-08 16:55:35,449", "level": "WARNING", "message": ""GET /favicon.ico HTTP/1.1" 404 2579"}
+{"time": "2025-11-08 16:56:03,577", "level": "WARNING", "message": "Not Found: /"}
+{"time": "2025-11-08 16:56:03,578", "level": "WARNING", "message": ""GET / HTTP/1.1" 404 2528"}
+{"time": "2025-11-08 16:56:45,155", "level": "INFO", "message": ""GET /admin HTTP/1.1" 301 0"}
+{"time": "2025-11-08 16:56:45,174", "level": "INFO", "message": ""GET /admin/ HTTP/1.1" 302 0"}
+{"time": "2025-11-08 16:56:45,464", "level": "INFO", "message": ""GET /admin/login/?next=/admin/ HTTP/1.1" 200 4186"}
+{"time": "2025-11-08 16:56:45,874", "level": "INFO", "message": ""GET /static/admin/css/responsive.css HTTP/1.1" 200 18533"}
+{"time": "2025-11-08 16:56:45,895", "level": "INFO", "message": ""GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2694"}
+{"time": "2025-11-08 16:56:45,898", "level": "INFO", "message": ""GET /static/admin/css/base.css HTTP/1.1" 200 21207"}
+{"time": "2025-11-08 16:56:45,898", "level": "INFO", "message": ""GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2929"}
+{"time": "2025-11-08 16:56:45,899", "level": "INFO", "message": ""GET /static/admin/css/login.css HTTP/1.1" 200 958"}
+{"time": "2025-11-08 16:56:45,903", "level": "INFO", "message": ""GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063"}
+{"time": "2025-11-08 16:56:45,918", "level": "INFO", "message": ""GET /static/admin/js/theme.js HTTP/1.1" 200 1943"}
+{"time": "2025-11-08 16:57:02,632", "level": "INFO", "message": ""GET /admin/login/?next=/patients-registrations/ HTTP/1.1" 200 4220"}
+{"time": "2025-11-08 16:57:11,825", "level": "WARNING", "message": "Method Not Allowed: /api/v1/patients/register/"}
+{"time": "2025-11-08 16:57:11,826", "level": "WARNING", "message": ""GET /api/v1/patients/register/ HTTP/1.1" 405 8273"}
+{"time": "2025-11-08 16:57:11,891", "level": "INFO", "message": ""GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 200 121457"}
+{"time": "2025-11-08 16:57:11,899", "level": "INFO", "message": ""GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 200 3385"}
+{"time": "2025-11-08 16:57:11,900", "level": "INFO", "message": ""GET /static/rest_framework/css/prettify.css HTTP/1.1" 200 817"}
+{"time": "2025-11-08 16:57:11,900", "level": "INFO", "message": ""GET /static/rest_framework/css/default.css HTTP/1.1" 200 1152"}
+{"time": "2025-11-08 16:57:11,916", "level": "INFO", "message": ""GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 200 3597"}
+{"time": "2025-11-08 16:57:11,926", "level": "INFO", "message": ""GET /static/rest_framework/js/csrf.js HTTP/1.1" 200 1719"}
+{"time": "2025-11-08 16:57:11,933", "level": "INFO", "message": ""GET /static/rest_framework/js/default.js HTTP/1.1" 200 1268"}
+{"time": "2025-11-08 16:57:11,934", "level": "INFO", "message": ""GET /static/rest_framework/img/grid.png HTTP/1.1" 200 1458"}
+{"time": "2025-11-08 16:57:11,962", "level": "INFO", "message": ""GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 200 13632"}
+{"time": "2025-11-08 16:57:11,964", "level": "INFO", "message": ""GET /static/rest_framework/js/jquery-3.5.1.min.js HTTP/1.1" 200 89476"}
+{"time": "2025-11-08 16:57:11,976", "level": "INFO", "message": ""GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 200 39680"}
+{"time": "2025-11-08 16:57:19,753", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
+{"time": "2025-11-08 16:57:19,754", "level": "WARNING", "message": ""GET /api/v1/patients/profile/ HTTP/1.1" 401 5238"}
+{"time": "2025-11-08 16:57:41,099", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
+{"time": "2025-11-08 16:57:41,100", "level": "WARNING", "message": ""GET /api/v1/patients/profile/ HTTP/1.1" 401 5238"}

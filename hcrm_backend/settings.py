@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'reporting',
 ]
 
+ROOT_URLCONF = 'hcrm_backend.urls'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -141,3 +143,7 @@ LOGGING = {
         },
     },
 }
+
+USE_TZ = True
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATIC_URL = '/static/'
