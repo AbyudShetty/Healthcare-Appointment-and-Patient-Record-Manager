@@ -1,0 +1,43 @@
+from django.db import models
+from authentication.models import User
+from patients.models import Patient
+
+
+class Appointment(models.Model):
+    """Appointment booking model (HCRM-F-005)"""
+
+    STATUS_CHOICES = [
+        ('SCHEDULED', 'Scheduled'),
+        ('COMPLETED', 'Completed'),
+        ('CANCELLED', 'Cancelled'),
+        ('NO_SHOW', 'No Show'),
+    ]
+
+    appointment_id = models.CharField(max_length=20, unique=True, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='appointments')
+    clinician = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
+    appointment_date = models.DateField()
+    appointment_time = models.TimeField()
+    duration_minutes = models.IntegerField(default=30)
+    reason_for_visit = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='SCHEDULED')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'appointments'
+        ordering = ['-appointment_date', '-appointment_time']
+
+    def save(self, *args, **kwargs):
+        if not self.appointment_id:
+            last_appt = Appointment.objects.order_by('-id').first()
+            if last_appt:
+                new_id = int(last_appt.appointment_id[3:]) + 1
+            else:
+                new_id = 1
+            self.appointment_id = f"APT{new_id:06d}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.appointment_id} - {self.patient.user.get_full_name()} with {self.clinician.get_full_name()}"
