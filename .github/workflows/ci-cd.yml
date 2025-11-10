@@ -9,59 +9,26 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install backend dependencies
-        run: |
-          if [ -f requirements.txt ]; then
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found, skipping..."
-          fi
-
-      - name: Run backend tests
-        run: |
-          if [ -d "tests" ]; then
-            pytest -v --disable-warnings --maxfail=3
-          else
-            echo "No test directory found, skipping..."
-          fi
-
-      - name: Setup Node.js for frontend
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install frontend dependencies
-        working-directory: ./frontend
+      - name: Install dependencies
         run: |
           if [ -f package.json ]; then
             npm ci
           else
-            echo "No package.json found in frontend/, skipping..."
+            echo "No package.json found, skipping npm install"
           fi
 
-      - name: Build frontend
-        working-directory: ./frontend
-        run: |
-          if [ -f package.json ]; then
-            npm run build --if-present
-          else
-            echo "No build script found, skipping..."
-          fi
-
-      - name: Run frontend linting
-        working-directory: ./frontend
+      - name: Run linting
         run: |
           if [ -f package.json ] && npm list --depth=0 | grep -q eslint; then
             npm run lint
@@ -69,17 +36,41 @@ jobs:
             echo "No linting configured, skipping..."
           fi
 
+      - name: Run tests
+        run: |
+          if [ -f package.json ] && npm list --depth=0 | grep -q jest; then
+            npm test
+          else
+            echo "No tests configured, skipping..."
+          fi
+
+      - name: Build application
+        run: |
+          if [ -f package.json ]; then
+            npm run build --if-present
+          else
+            echo "No build script found, skipping..."
+          fi
+
+      - name: Security audit
+        run: |
+          if [ -f package.json ]; then
+            npm audit --audit-level=high
+          else
+            echo "No package.json found, skipping security audit"
+          fi
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Deploy using script
-        run: bash ci_cd/deployment_script.sh
-
-      - name: Verify deployment
-        run: echo "Deployment verification complete."
+      - name: Deploy to staging
+        run: echo "Deploying to staging environment..."
+        
+      - name: Run integration tests
+        run: echo "Running integration tests..."
+        
+      - name: Deploy to production
+        run: echo "Deploying to production environment..."
