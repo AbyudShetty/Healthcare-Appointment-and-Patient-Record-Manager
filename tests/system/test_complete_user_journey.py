@@ -1,1 +1,4 @@
-test_complete_user_journey.py 
+import pytest
+
+def test_placeholder():
+    assert True
