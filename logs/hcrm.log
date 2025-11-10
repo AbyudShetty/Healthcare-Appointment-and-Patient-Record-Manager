@@ -66,3 +66,5 @@ ECHO is off.
 {"time": "2025-11-08 16:57:19,754", "level": "WARNING", "message": ""GET /api/v1/patients/profile/ HTTP/1.1" 401 5238"}
 {"time": "2025-11-08 16:57:41,099", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
 {"time": "2025-11-08 16:57:41,100", "level": "WARNING", "message": ""GET /api/v1/patients/profile/ HTTP/1.1" 401 5238"}
+{"time": "2025-11-10 11:48:54,328", "level": "WARNING", "message": "Not Found: /api/v1/appointments/availability/999/"}
+{"time": "2025-11-10 11:48:55,342", "level": "WARNING", "message": "Bad Request: /api/v1/appointments/availability/6/"}
