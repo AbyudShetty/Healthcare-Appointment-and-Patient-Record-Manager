@@ -2,6 +2,22 @@ from django.db import models
 from authentication.models import User
 from patients.models import Patient
 
+class ClinicianSchedule(models.Model):
+    """Manages clinician availability (HCRM-F-004)"""
+    
+    clinician = models.ForeignKey(User, on_delete=models.CASCADE, related_name='schedules')
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_available = models.BooleanField(default=True)
+    
+    class Meta:
+        db_table = 'clinician_schedules'
+        unique_together = ['clinician', 'date', 'start_time']
+        ordering = ['date', 'start_time']
+    
+    def __str__(self):
+        return f"{self.clinician.get_full_name()} - {self.date} {self.start_time}-{self.end_time}"
 
 class Appointment(models.Model):
     """Appointment booking model (HCRM-F-005)"""
