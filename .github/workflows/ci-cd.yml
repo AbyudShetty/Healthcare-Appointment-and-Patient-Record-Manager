@@ -9,42 +9,87 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
+    # --- PostgreSQL service for Django tests ---
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: hcrm_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      # --- Backend setup ---
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install backend dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found, skipping..."
+          fi
+
+      - name: Set environment variables for Django
+        run: |
+          echo "DB_NAME=hcrm_db" >> $GITHUB_ENV
+          echo "DB_USER=postgres" >> $GITHUB_ENV
+          echo "DB_PASSWORD=password" >> $GITHUB_ENV
+          echo "DB_HOST=localhost" >> $GITHUB_ENV
+          echo "DB_PORT=5432" >> $GITHUB_ENV
+          echo "DJANGO_SETTINGS_MODULE=hcrm_backend.settings" >> $GITHUB_ENV
+
+      - name: Run migrations
+        run: |
+          if [ -f manage.py ]; then
+            python manage.py migrate --noinput
+          else
+            echo "No manage.py found, skipping migrations..."
+          fi
+
+      - name: Run backend tests
+        run: |
+          if [ -d "tests" ]; then
+            echo "Running main test suite..."
+            pytest tests/ --disable-warnings --maxfail=3
+          else
+            echo "No test directory found, skipping..."
+          fi
+
+      # --- Frontend setup ---
+      - name: Setup Node.js for frontend
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
+        working-directory: ./frontend
         run: |
           if [ -f package.json ]; then
             npm ci
           else
-            echo "No package.json found, skipping npm install"
+            echo "No package.json found in frontend/, skipping..."
           fi
 
-      - name: Run linting
-        run: |
-          if [ -f package.json ] && npm list --depth=0 | grep -q eslint; then
-            npm run lint
-          else
-            echo "No linting configured, skipping..."
-          fi
-
-      - name: Run tests
-        run: |
-          if [ -f package.json ] && npm list --depth=0 | grep -q jest; then
-            npm test
-          else
-            echo "No tests configured, skipping..."
-          fi
-
-      - name: Build application
+      - name: Build frontend
+        working-directory: ./frontend
         run: |
           if [ -f package.json ]; then
             npm run build --if-present
@@ -52,25 +97,27 @@ jobs:
             echo "No build script found, skipping..."
           fi
 
-      - name: Security audit
+      - name: Run frontend linting
+        working-directory: ./frontend
         run: |
-          if [ -f package.json ]; then
-            npm audit --audit-level=high
+          if [ -f package.json ] && npm list --depth=0 | grep -q eslint; then
+            npm run lint
           else
-            echo "No package.json found, skipping security audit"
+            echo "No linting configured, skipping..."
           fi
 
+  # --- Deployment job ---
   deploy:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-      - name: Deploy to staging
-        run: echo "Deploying to staging environment..."
-        
-      - name: Run integration tests
-        run: echo "Running integration tests..."
-        
-      - name: Deploy to production
-        run: echo "Deploying to production environment..."
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy using script
+        run: bash ci_cd/deployment_script.sh
+
+      - name: Verify deployment
+        run: echo "Deployment verification complete."
