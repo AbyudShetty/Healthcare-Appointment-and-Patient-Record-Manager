@@ -96,3 +96,52 @@ class ClinicianAvailabilityView(generics.ListAPIView):
                 available_slots.append(slot)
 
         return Response(available_slots)
+
+class AppointmentBookingView(generics.CreateAPIView):
+    """
+    Book a new appointment (HCRM-F-005)
+    AC-F-005: Appointment created and visible on both patient and clinician calendars
+    Transaction time must be ≤10s (HCRM-NF-001)
+    """
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Check if slot is still available
+        clinician_id = serializer.validated_data['clinician'].id
+        appointment_date = serializer.validated_data['appointment_date']
+        appointment_time = serializer.validated_data['appointment_time']
+        
+        # Check for conflicts
+        conflict = Appointment.objects.filter(
+            clinician_id=clinician_id,
+            appointment_date=appointment_date,
+            appointment_time=appointment_time,
+            status='SCHEDULED'
+        ).exists()
+        
+        if conflict:
+            return Response(
+                {'error': 'This time slot is no longer available'},
+                status=status.HTTP_409_CONFLICT
+            )
+        
+        # Create appointment
+        appointment = serializer.save()
+        
+        # Log action
+        from audit_logs.utils import log_action
+        log_action(
+            user=request.user,
+            action='APPOINTMENT_BOOKED',
+            details=f"Appointment {appointment.appointment_id} booked"
+        )
+        
+        # Trigger reminder notification (async task)
+        from notifications.tasks import schedule_appointment_reminder
+        schedule_appointment_reminder.delay(appointment.id)
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
