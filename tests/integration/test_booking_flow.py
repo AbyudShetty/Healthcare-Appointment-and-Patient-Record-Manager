@@ -1,1 +1,5 @@
-test_booking_flow.py 
+#Placeholder
+import pytest
+
+def test_placeholder():
+    assert True
