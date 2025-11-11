@@ -71,16 +71,14 @@ MIDDLEWARE = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='hcrm_db'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default='password'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
-        'OPTIONS': {
-            'sslmode': 'prefer',
-        },
+        'NAME': 'haprm_db',
+        'USER': 'haprm_user',
+        'PASSWORD': 'haprm_pass',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
 
 # REST Framework settings
 REST_FRAMEWORK = {
@@ -147,3 +145,6 @@ LOGGING = {
 USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
+
+# Fernet key for PHI encryption/decryption (dev: from env; production: secret manager)
+MY_FERNET_KEY = os.environ.get("MY_FERNET_KEY", None)
