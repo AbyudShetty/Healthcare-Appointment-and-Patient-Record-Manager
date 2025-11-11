@@ -56,8 +56,8 @@ jobs:
         run: |
           echo "DB_NAME=hcrm_db" >> $GITHUB_ENV
           echo "DB_USER=haprm_user" >> $GITHUB_ENV
-          echo "DB_PASSWORD=password" >> $GITHUB_ENV
-          echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
+          echo "DB_PASSWORD=haprm_pass" >> $GITHUB_ENV
+          echo "DB_HOST=localhost" >> $GITHUB_ENV
           echo "DB_PORT=5432" >> $GITHUB_ENV
           echo "DJANGO_SETTINGS_MODULE=hcrm_backend.settings" >> $GITHUB_ENV
 
