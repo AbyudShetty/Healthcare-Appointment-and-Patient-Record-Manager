@@ -1,8 +1,12 @@
+*.env 
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.env
+*.sqlite3
+logs/
 *.db
 *.sqlite3
 *.log
