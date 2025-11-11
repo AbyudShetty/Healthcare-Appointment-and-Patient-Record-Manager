@@ -23,7 +23,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_DB: hcrm_db
-          POSTGRES_USER: postgres
+          POSTGRES_USER: haprm_user
           POSTGRES_PASSWORD: password
         ports:
           - 5432:5432
@@ -55,9 +55,9 @@ jobs:
       - name: Set environment variables for Django
         run: |
           echo "DB_NAME=hcrm_db" >> $GITHUB_ENV
-          echo "DB_USER=postgres" >> $GITHUB_ENV
+          echo "DB_USER=haprm_user" >> $GITHUB_ENV
           echo "DB_PASSWORD=password" >> $GITHUB_ENV
-          echo "DB_HOST=localhost" >> $GITHUB_ENV
+          echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
           echo "DB_PORT=5432" >> $GITHUB_ENV
           echo "DJANGO_SETTINGS_MODULE=hcrm_backend.settings" >> $GITHUB_ENV
 
