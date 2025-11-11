@@ -147,3 +147,6 @@ LOGGING = {
 USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
+
+# Fernet key for PHI encryption/decryption (dev: from env; production: secret manager)
+MY_FERNET_KEY = os.environ.get("MY_FERNET_KEY", None)
