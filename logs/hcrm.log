@@ -66,3 +66,92 @@ ECHO is off.
 {"time": "2025-11-08 16:57:19,754", "level": "WARNING", "message": ""GET /api/v1/patients/profile/ HTTP/1.1" 401 5238"}
 {"time": "2025-11-08 16:57:41,099", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
 {"time": "2025-11-08 16:57:41,100", "level": "WARNING", "message": ""GET /api/v1/patients/profile/ HTTP/1.1" 401 5238"}
+{"time": "2025-11-10 11:48:54,328", "level": "WARNING", "message": "Not Found: /api/v1/appointments/availability/999/"}
+{"time": "2025-11-10 11:48:55,342", "level": "WARNING", "message": "Bad Request: /api/v1/appointments/availability/6/"}
+{"time": "2025-11-11 01:14:58,821", "level": "ERROR", "message": "Internal Server Error: /api/v1/appointments/book/"}
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\utils\functional.py", line 32, in __call__
+    return self.__value__
+AttributeError: 'ChannelPromise' object has no attribute '__value__'. Did you mean: '__call__'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\connection.py", line 472, in _reraise_as_library_errors
+    yield
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\connection.py", line 459, in _ensure_connection
+    return retry_over_time(
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\utils\functional.py", line 318, in retry_over_time
+    return fun(*args, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\connection.py", line 938, in _connection_factory
+    self._connection = self._establish_connection()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\connection.py", line 860, in _establish_connection
+    conn = self.transport.establish_connection()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\transport\pyamqp.py", line 203, in establish_connection
+    conn.connect()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\amqp\connection.py", line 324, in connect
+    self.transport.connect()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\amqp\transport.py", line 132, in connect
+    self._connect(self.host, self.port, self.connect_timeout)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\amqp\transport.py", line 187, in _connect
+    self.sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+  File "C:\Users\Admin\Documents\SE_Sem5\HAPRM_Mini_Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\appointments\views.py", line 145, in create
+    schedule_appointment_reminder.delay(appointment.id)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\celery\app\task.py", line 444, in delay
+    return self.apply_async(args, kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\celery\app\task.py", line 594, in apply_async
+    return app.send_task(
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\celery\app\base.py", line 798, in send_task
+    amqp.send_task_message(P, name, message, **options)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\celery\app\amqp.py", line 517, in send_task_message
+    ret = producer.publish(
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\messaging.py", line 190, in publish
+    return _publish(
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\connection.py", line 556, in _ensured
+    return fun(*args, **kwargs)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\messaging.py", line 200, in _publish
+    channel = self.channel
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\messaging.py", line 224, in _get_channel
+    channel = self._channel = channel()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\utils\functional.py", line 34, in __call__
+    value = self.__value__ = self.__contract__()
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\messaging.py", line 240, in <lambda>
+    channel = ChannelPromise(lambda: connection.default_channel)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\connection.py", line 957, in default_channel
+    self._ensure_connection(**conn_opts)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\connection.py", line 458, in _ensure_connection
+    with ctx():
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "C:\Users\Admin\AppData\Local\Programs\Python\Python310\lib\site-packages\kombu\connection.py", line 476, in _reraise_as_library_errors
+    raise ConnectionError(str(exc)) from exc
+kombu.exceptions.OperationalError: [WinError 10061] No connection could be made because the target machine actively refused it
+{"time": "2025-11-11 01:15:05,050", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-11 01:15:07,648", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
+{"time": "2025-11-11 01:18:16,653", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-11 01:18:18,422", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
+{"time": "2025-11-11 01:20:02,776", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-11 01:20:04,728", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
