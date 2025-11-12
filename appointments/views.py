@@ -9,9 +9,11 @@ from authentication.models import User
 from appointments.serializers import (
     ClinicianSearchSerializer, 
     ClinicianAvailabilitySerializer,
-    AppointmentSerializer
+    AppointmentSerializer,
+    ClinicianDashboardSerializer
 )
 from datetime import datetime
+from datetime import date
 
 class AppointmentHealthCheckView(APIView):
     def get(self, request):
@@ -145,3 +147,43 @@ class AppointmentBookingView(generics.CreateAPIView):
         schedule_appointment_reminder.delay(appointment.id)
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
+class ClinicianDashboardView(APIView):
+    """
+    Display clinician's daily schedule (F-007)
+    AC-F-007: Shows patient name, time, and reason for visit
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # Ensure user is a clinician
+        if request.user.role != 'CLINICIAN':
+            return Response(
+                {'error': 'Only clinicians can access this endpoint'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Get date from query param or use today
+        date_str = request.query_params.get('date', date.today().strftime('%Y-%m-%d'))
+        try:
+            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return Response(
+                {'error': 'Invalid date format. Use YYYY-MM-DD'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get appointments for this clinician on target date
+        appointments = Appointment.objects.filter(
+            clinician=request.user,
+            appointment_date=target_date
+        ).select_related('patient__user').order_by('appointment_time')
+        
+        serializer = ClinicianDashboardSerializer(appointments, many=True)
+        
+        return Response({
+            'date': target_date,
+            'total_appointments': appointments.count(),
+            'appointments': serializer.data
+        })    
