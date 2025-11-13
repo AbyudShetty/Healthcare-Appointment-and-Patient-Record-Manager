@@ -751,3 +751,158 @@ RuntimeError: Fernet key not configured in settings.MY_FERNET_KEY
 {"time": "2025-11-13 07:54:24,571", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
 {"time": "2025-11-13 08:01:48,489", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
 {"time": "2025-11-13 08:01:49,583", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:08:53,571", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:08:54,692", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:09:23,375", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:09:24,478", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:09:27,933", "level": "WARNING", "message": "Forbidden: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 11:09:31,320", "level": "WARNING", "message": "Unauthorized: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 11:09:32,020", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
+{"time": "2025-11-13 11:09:34,843", "level": "WARNING", "message": "Not Found: /api/v1/appointments/availability/999/"}
+{"time": "2025-11-13 11:09:35,935", "level": "WARNING", "message": "Bad Request: /api/v1/appointments/availability/25/"}
+{"time": "2025-11-13 11:09:40,346", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-13 11:09:41,936", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
+{"time": "2025-11-13 11:09:46,267", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
+{"time": "2025-11-13 11:09:56,576", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:09:59,266", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:28:43,690", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:28:44,837", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:28:48,444", "level": "WARNING", "message": "Forbidden: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 11:28:51,796", "level": "WARNING", "message": "Unauthorized: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 11:28:52,530", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
+{"time": "2025-11-13 11:28:55,541", "level": "WARNING", "message": "Not Found: /api/v1/appointments/availability/999/"}
+{"time": "2025-11-13 11:28:56,706", "level": "WARNING", "message": "Bad Request: /api/v1/appointments/availability/25/"}
+{"time": "2025-11-13 11:29:01,375", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-13 11:29:03,014", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
+{"time": "2025-11-13 11:29:07,474", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
+{"time": "2025-11-13 11:29:18,579", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:29:21,452", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:36:56,997", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:36:58,178", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:37:01,585", "level": "WARNING", "message": "Forbidden: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 11:37:04,919", "level": "WARNING", "message": "Unauthorized: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 11:37:05,600", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
+{"time": "2025-11-13 11:37:08,472", "level": "WARNING", "message": "Not Found: /api/v1/appointments/availability/999/"}
+{"time": "2025-11-13 11:37:09,650", "level": "WARNING", "message": "Bad Request: /api/v1/appointments/availability/25/"}
+{"time": "2025-11-13 11:37:14,064", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-13 11:37:15,639", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
+{"time": "2025-11-13 11:37:19,849", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
+{"time": "2025-11-13 11:37:24,645", "level": "ERROR", "message": "Internal Server Error: /api/v1/records/quick-create/"}
+Traceback (most recent call last):
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\views.py", line 122, in create
+    medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\utils.py", line 43, in encrypt_field
+    f = _get_fernet()
+        ^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\utils.py", line 6, in _get_fernet
+    key = os.environ.get("HCRM_ENCRYPTION_KEY")
+          ^^
+NameError: name 'os' is not defined. Did you forget to import 'os'
+{"time": "2025-11-13 11:37:28,029", "level": "ERROR", "message": "Internal Server Error: /api/v1/records/quick-create/"}
+Traceback (most recent call last):
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\views.py", line 122, in create
+    medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\utils.py", line 43, in encrypt_field
+    f = _get_fernet()
+        ^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\utils.py", line 6, in _get_fernet
+    key = os.environ.get("HCRM_ENCRYPTION_KEY")
+          ^^
+NameError: name 'os' is not defined. Did you forget to import 'os'
+{"time": "2025-11-13 11:37:30,919", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:37:33,581", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:40:17,393", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:40:18,502", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:40:21,854", "level": "WARNING", "message": "Forbidden: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 11:40:25,182", "level": "WARNING", "message": "Unauthorized: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 11:40:25,858", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
+{"time": "2025-11-13 11:40:28,729", "level": "WARNING", "message": "Not Found: /api/v1/appointments/availability/999/"}
+{"time": "2025-11-13 11:40:29,833", "level": "WARNING", "message": "Bad Request: /api/v1/appointments/availability/25/"}
+{"time": "2025-11-13 11:40:34,235", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-13 11:40:35,776", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
+{"time": "2025-11-13 11:40:39,994", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
+{"time": "2025-11-13 11:40:50,086", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:40:52,735", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:41:32,345", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:41:33,455", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 11:43:42,573", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:43:45,211", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 11:45:32,738", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
+{"time": "2025-11-13 12:01:35,073", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 12:01:36,174", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 12:01:39,608", "level": "WARNING", "message": "Forbidden: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 12:01:43,110", "level": "WARNING", "message": "Unauthorized: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 12:01:43,812", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
+{"time": "2025-11-13 12:01:46,759", "level": "WARNING", "message": "Not Found: /api/v1/appointments/availability/999/"}
+{"time": "2025-11-13 12:01:47,905", "level": "WARNING", "message": "Bad Request: /api/v1/appointments/availability/25/"}
+{"time": "2025-11-13 12:01:52,565", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-13 12:01:54,137", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
+{"time": "2025-11-13 12:01:58,679", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
+{"time": "2025-11-13 12:02:09,252", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 12:02:11,870", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 12:11:51,559", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 12:11:52,650", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 12:11:55,997", "level": "WARNING", "message": "Forbidden: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 12:11:59,326", "level": "WARNING", "message": "Unauthorized: /api/v1/records/TESTPAT001/history/"}
+{"time": "2025-11-13 12:12:00,014", "level": "WARNING", "message": "Unauthorized: /api/v1/patients/profile/"}
+{"time": "2025-11-13 12:12:02,868", "level": "WARNING", "message": "Not Found: /api/v1/appointments/availability/999/"}
+{"time": "2025-11-13 12:12:03,992", "level": "WARNING", "message": "Bad Request: /api/v1/appointments/availability/25/"}
+{"time": "2025-11-13 12:12:08,480", "level": "WARNING", "message": "Conflict: /api/v1/appointments/book/"}
+{"time": "2025-11-13 12:12:10,025", "level": "WARNING", "message": "Unauthorized: /api/v1/appointments/book/"}
+{"time": "2025-11-13 12:12:14,198", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
+{"time": "2025-11-13 12:12:24,329", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 12:12:26,987", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 12:14:07,593", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 12:14:08,701", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}

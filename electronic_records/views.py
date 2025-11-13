@@ -8,8 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from patients.models import Patient
-from electronic_records.models import PatientRecord
-from electronic_records.serializers import PatientRecordSerializer
+from electronic_records.models import PatientRecord, ClinicalNote
+from electronic_records.serializers import PatientRecordSerializer, ClinicalNoteSerializer
 
 from electronic_records.utils import encrypt_field  
 from audit_logs.utils import log_action    
@@ -133,4 +133,48 @@ class QuickRecordCreateView(generics.CreateAPIView):
         )
 
         serializer = self.get_serializer(record)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+
+class ClinicalNoteCreateView(generics.CreateAPIView):
+    """
+    Add clinical notes to patient record (F-009)
+    SR-004: Logs all note creation/modification in audit trail
+    """
+    serializer_class = ClinicalNoteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        if request.user.role not in ['CLINICIAN', 'ADMIN']:
+            return Response(
+                {'error': 'Only clinicians can add notes'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        record_id = request.data.get('record_id')
+        note_content = request.data.get('note_content')
+
+        # Find the patient record to attach the note to
+        record = get_object_or_404(PatientRecord, id=record_id)
+
+        # Create note
+        # The model's .save() method will handle the encryption
+        #
+        note = ClinicalNote.objects.create(
+            record=record,
+            clinician=request.user,
+            note_content_encrypted=note_content 
+        )
+
+        # Audit log
+        from audit_logs.utils import log_action
+        log_action(
+            user=request.user,
+            action='CLINICAL_NOTE_ADDED',
+            details=f"Note added to record {record.id} by {request.user.get_full_name()}"
+        )
+
+        serializer = self.get_serializer(note)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
