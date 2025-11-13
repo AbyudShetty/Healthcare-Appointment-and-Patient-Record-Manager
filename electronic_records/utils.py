@@ -16,7 +16,8 @@ def decrypt_field(value):
     Returns plaintext string on success, otherwise returns original value.
     """
     if value is None:
-        return None
+        raise ValueError("value cannot be None") # <-- THIS IS THE FIX
+
     try:
         f = _get_fernet()
         if isinstance(value, str):
@@ -31,13 +32,14 @@ def decrypt_field(value):
             pass
         return value
 
+# This is the new, fixed code
 def encrypt_field(plaintext):
-    """
-    Encrypt plaintext string (or bytes) to Fernet bytes.
-    Returns bytes. Caller can store as bytes or decode to str as needed.
-    """
     if plaintext is None:
-        return None
+        raise ValueError("plaintext cannot be None") # <-- FIX 1
+
+    if plaintext == "":
+        return "" # <-- FIX 2
+
     f = _get_fernet()
     if isinstance(plaintext, str):
         plaintext = plaintext.encode("utf-8")
