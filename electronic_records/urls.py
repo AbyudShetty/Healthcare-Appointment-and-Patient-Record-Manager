@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny  # 👈 added
 
 from electronic_records.views import SecureHistoryView  # existing import
+from electronic_records.views import SecureHistoryView, QuickRecordCreateView
 
 
 class RecordsHealthCheckView(APIView):
@@ -22,4 +23,5 @@ urlpatterns = [
     path("health/", RecordsHealthCheckView.as_view(), name="records-health"),
     # Secure history endpoint: GET /api/v1/records/<patient_id>/history/
     path("<str:patient_id>/history/", SecureHistoryView.as_view(), name="secure-history"),
+    path("quick-create/", QuickRecordCreateView.as_view(), name="record-quick-create"),
 ]

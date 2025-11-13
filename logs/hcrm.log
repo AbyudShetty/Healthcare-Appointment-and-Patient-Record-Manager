@@ -674,3 +674,80 @@ kombu.exceptions.OperationalError: [WinError 10061] No connection could be made 
 {"time": "2025-11-12 18:24:55,991", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
 {"time": "2025-11-12 18:26:56,085", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
 {"time": "2025-11-12 18:30:53,871", "level": "WARNING", "message": "Forbidden: /api/v1/appointments/dashboard/"}
+{"time": "2025-11-12 23:04:13,948", "level": "INFO", "message": "Watching for file changes with StatReloader"}
+{"time": "2025-11-13 07:54:20,744", "level": "ERROR", "message": "Internal Server Error: /api/v1/records/quick-create/"}
+Traceback (most recent call last):
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\views.py", line 122, in create
+    medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\utils.py", line 41, in encrypt_field
+    f = _get_fernet()
+        ^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\utils.py", line 8, in _get_fernet
+    raise RuntimeError("Fernet key not configured in settings.MY_FERNET_KEY")
+RuntimeError: Fernet key not configured in settings.MY_FERNET_KEY
+{"time": "2025-11-13 07:54:22,157", "level": "ERROR", "message": "Internal Server Error: /api/v1/records/quick-create/"}
+Traceback (most recent call last):
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\AppData\Local\Programs\Python\Python312\Lib\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\views.py", line 122, in create
+    medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\utils.py", line 41, in encrypt_field
+    f = _get_fernet()
+        ^^^^^^^^^^^^^
+  File "C:\Users\Abhijnan B C\My project (3)\SE\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\utils.py", line 8, in _get_fernet
+    raise RuntimeError("Fernet key not configured in settings.MY_FERNET_KEY")
+RuntimeError: Fernet key not configured in settings.MY_FERNET_KEY
+{"time": "2025-11-13 07:54:23,334", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 07:54:24,571", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 08:01:48,489", "level": "WARNING", "message": "Forbidden: /api/v1/records/quick-create/"}
+{"time": "2025-11-13 08:01:49,583", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}

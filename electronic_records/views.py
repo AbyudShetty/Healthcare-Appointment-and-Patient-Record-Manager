@@ -11,6 +11,9 @@ from patients.models import Patient
 from electronic_records.models import PatientRecord
 from electronic_records.serializers import PatientRecordSerializer
 
+from electronic_records.utils import encrypt_field  
+from audit_logs.utils import log_action    
+from .models import PatientRecord       
 
 def _user_is_clinician_or_admin(user):
     """
@@ -87,3 +90,47 @@ class SecureHistoryView(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+
+class QuickRecordCreateView(generics.CreateAPIView):
+    """
+    Quick patient record creation (F-008)
+    NF-002: Must load/create within <= 5 seconds
+    """
+    serializer_class = PatientRecordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        # Verify clinician role
+        if request.user.role not in ['CLINICIAN', 'ADMIN']:
+            return Response(
+                {'error': 'Only clinicians can create records'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        patient_id = request.data.get('patient_id')
+
+        # Get patient
+        patient = get_object_or_404(Patient, patient_id=patient_id)
+
+        # Create minimal record
+        record = PatientRecord.objects.create(
+            patient=patient,
+            created_by=request.user,
+            medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')),
+            diagnoses_encrypted=encrypt_field(request.data.get('diagnoses', '')),
+            medications_encrypted=encrypt_field(request.data.get('medications', ''))
+        )
+
+        # Log action
+        from audit_logs.utils import log_action
+        log_action(
+            user=request.user,
+            action='RECORD_CREATED',
+            details=f"Record created for patient {patient.patient_id}"
+        )
+
+        serializer = self.get_serializer(record)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

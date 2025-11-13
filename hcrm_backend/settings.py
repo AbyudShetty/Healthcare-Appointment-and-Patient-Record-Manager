@@ -2,6 +2,8 @@ import os
 from decouple import config
 from datetime import timedelta
 from pathlib import Path
+from cryptography.fernet import Fernet
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -137,3 +139,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
 
 MY_FERNET_KEY = os.environ.get("MY_FERNET_KEY", None)
+
+if MY_FERNET_KEY is None:
+    MY_FERNET_KEY = Fernet.generate_key().decode()
+
+
+HCRM_ENCRYPTION_KEY = config("HCRM_ENCRYPTION_KEY", default="")
