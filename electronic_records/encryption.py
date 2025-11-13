@@ -13,15 +13,25 @@ ENV_KEY = "HCRM_ENCRYPTION_KEY"
 
 
 def get_key() -> bytes:
-    """Fetch or generate encryption key."""
+    """Fetch or generate a valid Fernet encryption key."""
     key = os.getenv(ENV_KEY)
     if key:
         if isinstance(key, str):
-            return key.encode()
-        return key
+            key_bytes = key.encode()
+        else:
+            key_bytes = key
+        # Validate that it's a proper Fernet key
+        try:
+            Fernet(key_bytes)
+            return key_bytes
+        except Exception:
+            raise ValueError(
+                f"Invalid {ENV_KEY} format. Must be a 32-byte base64-encoded string."
+            )
     # Generate a temporary key if not set
     temp = Fernet.generate_key()
     os.environ[ENV_KEY] = temp.decode()
+    # Warn without exposing the actual key
     print("⚠️  No encryption key found — generated a temporary one for dev use.")
     return temp
 
@@ -55,3 +65,11 @@ def decrypt(token: str) -> str:
     except InvalidToken as e:
         raise ValueError("Invalid token or key") from e
     return plain.decode("utf-8")
+
+
+def _self_test():
+    """Quick round-trip test for development."""
+    sample = "hello world"
+    token = encrypt(sample)
+    assert decrypt(token) == sample
+    print("Encryption self-test passed.")
