@@ -13,7 +13,13 @@ from electronic_records.serializers import PatientRecordSerializer, ClinicalNote
 
 from electronic_records.utils import encrypt_field  
 from audit_logs.utils import log_action    
-from .models import PatientRecord       
+from .models import PatientRecord      
+
+from django.core.files.base import ContentFile
+from .models import PatientDocument
+from .serializers import PatientDocumentSerializer, PatientDocumentUploadSerializer
+from .encryption import encrypt_file, decrypt_file
+
 
 def _user_is_clinician_or_admin(user):
     """
@@ -178,3 +184,60 @@ class ClinicalNoteCreateView(generics.CreateAPIView):
 
         serializer = self.get_serializer(note)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
+class PatientDocumentUploadView(generics.CreateAPIView):
+    """Upload encrypted patient documents (F-014)"""
+    serializer_class = PatientDocumentUploadSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        file = serializer.validated_data['file']
+        document_type = serializer.validated_data['document_type']
+        
+        # Get patient
+        patient = Patient.objects.get(user=request.user)
+        
+        # Read and encrypt file
+        file_data = file.read()
+        encrypted_data = encrypt_file(file_data)
+        
+        # Save encrypted file
+        document = PatientDocument.objects.create(
+            patient=patient,
+            document_type=document_type,
+            original_filename=file.name,
+            uploaded_by=request.user,
+            file_size_bytes=file.size
+        )
+        
+        document.file_encrypted.save(
+            f"encrypted_{file.name}",
+            ContentFile(encrypted_data),
+            save=True
+        )
+        
+        # Log action
+        from audit_logs.utils import log_action
+        log_action(
+            user=request.user,
+            action='DOCUMENT_UPLOADED',
+            details=f"Document {file.name} uploaded for patient {patient.patient_id}"
+        )
+        
+        return Response(
+            PatientDocumentSerializer(document).data,
+            status=status.HTTP_201_CREATED
+        )
+
+class PatientDocumentListView(generics.ListAPIView):
+    """List patient's documents"""
+    serializer_class = PatientDocumentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        patient = Patient.objects.get(user=self.request.user)
+        return PatientDocument.objects.filter(patient=patient)

@@ -16,6 +16,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      HCRM_ENCRYPTION_KEY: ${{ secrets.HCRM_ENCRYPTION_KEY }}
+
 
     # --- PostgreSQL service for Django tests ---
     services:

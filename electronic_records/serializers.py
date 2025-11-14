@@ -4,6 +4,7 @@ from electronic_records.models import PatientRecord, ClinicalNote
 
 # Use the real decrypt helper (make sure electronic_records/utils.py exists)
 from electronic_records.utils import decrypt_field as decrypt_field_maybe
+from .models import PatientDocument
 
 
 class ClinicalNoteSerializer(serializers.ModelSerializer):
@@ -55,3 +56,27 @@ class PatientRecordSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
+
+
+class PatientDocumentSerializer(serializers.ModelSerializer):
+    uploaded_by_name = serializers.CharField(source='uploaded_by.get_full_name', read_only=True)
+    
+    class Meta:
+        model = PatientDocument
+        fields = ['id', 'document_type', 'original_filename', 'uploaded_at', 
+                  'uploaded_by_name', 'file_size_bytes']
+        read_only_fields = ['uploaded_at', 'file_size_bytes']
+
+class PatientDocumentUploadSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True)
+    
+    class Meta:
+        model = PatientDocument
+        fields = ['document_type', 'file']
+    
+    def validate_file(self, value):
+        # Validate file size (max 10MB)
+        max_size = 10 * 1024 * 1024
+        if value.size > max_size:
+            raise serializers.ValidationError("File size cannot exceed 10MB")
+        return value
