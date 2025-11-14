@@ -3,7 +3,9 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from patients.models import Patient
-from electronic_records.utils import encrypt_field  # used to encrypt note text on save
+from electronic_records.utils import encrypt_field  
+import os
+from django.core.validators import FileExtensionValidator
 
 
 class PatientRecord(models.Model):
@@ -82,3 +84,30 @@ class ClinicalNote(models.Model):
             pass
 
         super().save(*args, **kwargs)
+
+class PatientDocument(models.Model):
+    """Uploaded patient documents (encrypted at rest)"""
+    
+    DOCUMENT_TYPES = [
+        ('LAB_REPORT', 'Lab Report'),
+        ('IMAGING', 'Imaging Results'),
+        ('PRESCRIPTION', 'Prescription'),
+        ('OTHER', 'Other'),
+    ]
+    
+    patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='documents')
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
+    file_encrypted = models.FileField(
+        upload_to='documents/%Y/%m/',
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])]
+    )
+    original_filename = models.CharField(max_length=255)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    file_size_bytes = models.BigIntegerField()
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+    
+    def __str__(self):
+        return f"{self.original_filename} - {self.patient.patient_id}"

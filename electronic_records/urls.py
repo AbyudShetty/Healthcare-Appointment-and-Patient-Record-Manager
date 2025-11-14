@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny  # 👈 added
 
 from electronic_records.views import SecureHistoryView  # existing import
-from electronic_records.views import SecureHistoryView, QuickRecordCreateView, ClinicalNoteCreateView
+from electronic_records.views import SecureHistoryView, QuickRecordCreateView, ClinicalNoteCreateView, PatientDocumentUploadView, PatientDocumentListView
 
 
 
@@ -26,4 +26,6 @@ urlpatterns = [
     path("<str:patient_id>/history/", SecureHistoryView.as_view(), name="secure-history"),
     path("quick-create/", QuickRecordCreateView.as_view(), name="record-quick-create"),
     path("notes/add/", ClinicalNoteCreateView.as_view(), name="clinical-note-add"),
+    path('documents/upload/', PatientDocumentUploadView.as_view(), name='document-upload'),
+    path('documents/', PatientDocumentListView.as_view(), name='document-list'),
 ]

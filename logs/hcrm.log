@@ -906,3 +906,117 @@ NameError: name 'os' is not defined. Did you forget to import 'os'
 {"time": "2025-11-13 12:12:26,987", "level": "WARNING", "message": "Not Found: /api/v1/records/quick-create/"}
 {"time": "2025-11-13 12:14:07,593", "level": "WARNING", "message": "Forbidden: /api/v1/records/notes/add/"}
 {"time": "2025-11-13 12:14:08,701", "level": "WARNING", "message": "Not Found: /api/v1/records/notes/add/"}
+{"time": "2025-11-13 19:59:46,667", "level": "ERROR", "message": "Internal Server Error: /api/v1/records/documents/upload/"}
+Traceback (most recent call last):
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+  File "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\views.py", line 206, in create
+    encrypted_data = encrypt_file(file_data)
+  File "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\encryption.py", line 83, in encrypt_file
+    fernet = Fernet(key)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\cryptography\fernet.py", line 40, in __init__
+    raise ValueError(
+ValueError: Fernet key must be 32 url-safe base64-encoded bytes.
+{"time": "2025-11-13 19:59:47,476", "level": "WARNING", "message": "Bad Request: /api/v1/records/documents/upload/"}
+{"time": "2025-11-13 20:00:02,493", "level": "ERROR", "message": "Internal Server Error: /api/v1/records/documents/upload/"}
+Traceback (most recent call last):
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+  File "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\views.py", line 206, in create
+    encrypted_data = encrypt_file(file_data)
+  File "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\encryption.py", line 83, in encrypt_file
+    fernet = Fernet(key)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\cryptography\fernet.py", line 40, in __init__
+    raise ValueError(
+ValueError: Fernet key must be 32 url-safe base64-encoded bytes.
+{"time": "2025-11-13 20:00:03,209", "level": "WARNING", "message": "Bad Request: /api/v1/records/documents/upload/"}
+{"time": "2025-11-13 20:04:58,135", "level": "ERROR", "message": "Internal Server Error: /api/v1/records/documents/upload/"}
+Traceback (most recent call last):
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+  File "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\views.py", line 206, in create
+    encrypted_data = encrypt_file(file_data)
+  File "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\encryption.py", line 83, in encrypt_file
+    fernet = Fernet(key)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\cryptography\fernet.py", line 40, in __init__
+    raise ValueError(
+ValueError: Fernet key must be 32 url-safe base64-encoded bytes.
+{"time": "2025-11-13 20:04:58,837", "level": "WARNING", "message": "Bad Request: /api/v1/records/documents/upload/"}
+{"time": "2025-11-13 20:07:39,386", "level": "ERROR", "message": "Internal Server Error: /api/v1/records/documents/upload/"}
+Traceback (most recent call last):
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\rest_framework\generics.py", line 190, in post
+    return self.create(request, *args, **kwargs)
+  File "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\views.py", line 206, in create
+    encrypted_data = encrypt_file(file_data)
+  File "C:\ABYUD\COLLEGE\5th sem\Software Engineering\Project\PESU_RR_CSE_A_P22_Healthcare_Appointment_and_Patient_Record_Manager_Oura-Oura\electronic_records\encryption.py", line 83, in encrypt_file
+    fernet = Fernet(key)
+  File "C:\Users\abyud\AppData\Roaming\Python\Python310\site-packages\cryptography\fernet.py", line 40, in __init__
+    raise ValueError(
+ValueError: Fernet key must be 32 url-safe base64-encoded bytes.
+{"time": "2025-11-13 20:07:40,106", "level": "WARNING", "message": "Bad Request: /api/v1/records/documents/upload/"}
+{"time": "2025-11-13 20:11:12,889", "level": "WARNING", "message": "Bad Request: /api/v1/records/documents/upload/"}
+{"time": "2025-11-13 20:12:00,352", "level": "WARNING", "message": "Bad Request: /api/v1/records/documents/upload/"}

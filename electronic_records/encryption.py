@@ -8,6 +8,9 @@ Encrypts and decrypts Protected Health Information (PHI) using Fernet
 
 import os
 from cryptography.fernet import Fernet, InvalidToken
+from django.conf import settings
+import os
+
 
 ENV_KEY = "HCRM_ENCRYPTION_KEY"
 
@@ -73,3 +76,15 @@ def _self_test():
     token = encrypt(sample)
     assert decrypt(token) == sample
     print("Encryption self-test passed.")
+
+def encrypt_file(file_data):
+    """Encrypt file bytes using Fernet"""
+    key = settings.HCRM_ENCRYPTION_KEY.encode() if isinstance(settings.HCRM_ENCRYPTION_KEY, str) else settings.HCRM_ENCRYPTION_KEY
+    fernet = Fernet(key)
+    return fernet.encrypt(file_data)
+
+def decrypt_file(encrypted_data):
+    """Decrypt file bytes"""
+    key = settings.HCRM_ENCRYPTION_KEY.encode() if isinstance(settings.HCRM_ENCRYPTION_KEY, str) else settings.HCRM_ENCRYPTION_KEY
+    fernet = Fernet(key)
+    return fernet.decrypt(encrypted_data)
