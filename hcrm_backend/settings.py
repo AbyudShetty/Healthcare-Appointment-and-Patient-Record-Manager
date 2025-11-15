@@ -138,7 +138,7 @@ TIME_ZONE = 'Asia/Kolkata'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
 
-MY_FERNET_KEY = os.environ.get("MY_FERNET_KEY", None)
+MY_FERNET_KEY = config("HCRM_ENCRYPTION_KEY", default=None)
 
 if MY_FERNET_KEY is None:
     MY_FERNET_KEY = Fernet.generate_key().decode()

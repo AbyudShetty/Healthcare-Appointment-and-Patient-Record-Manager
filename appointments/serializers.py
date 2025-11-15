@@ -15,9 +15,10 @@ class ClinicianAvailabilitySerializer(serializers.ModelSerializer):
     """Serializer for clinician availability"""
     clinician_name = serializers.CharField(source='clinician.get_full_name', read_only=True)
     
+    # This is the new, fixed code
     class Meta:
         model = ClinicianSchedule
-        fields = ['id', 'clinician_name', 'date', 'start_time', 'end_time', 'is_available']
+        fields = ['id', 'clinician', 'clinician_name', 'date', 'start_time', 'end_time', 'is_available']
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
