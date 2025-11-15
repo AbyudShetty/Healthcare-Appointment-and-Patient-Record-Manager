@@ -3,6 +3,7 @@ from django.urls import path
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny  # 👈 added
+from .views import PatientRecordSearchView
 
 from electronic_records.views import SecureHistoryView  # existing import
 from electronic_records.views import SecureHistoryView, QuickRecordCreateView, ClinicalNoteCreateView, PatientDocumentUploadView, PatientDocumentListView
@@ -28,4 +29,6 @@ urlpatterns = [
     path("notes/add/", ClinicalNoteCreateView.as_view(), name="clinical-note-add"),
     path('documents/upload/', PatientDocumentUploadView.as_view(), name='document-upload'),
     path('documents/', PatientDocumentListView.as_view(), name='document-list'),
+    path('search/', PatientRecordSearchView.as_view(), name='record-search'),
+
 ]
