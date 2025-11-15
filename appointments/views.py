@@ -187,3 +187,45 @@ class ClinicianDashboardView(APIView):
             'total_appointments': appointments.count(),
             'appointments': serializer.data
         })    
+    
+
+class ClinicianScheduleManagementView(generics.ListCreateAPIView):
+    """
+    Admin manages clinician schedules (F-011)
+    """
+    serializer_class = ClinicianAvailabilitySerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        if self.request.user.role != 'ADMIN':
+            return ClinicianSchedule.objects.none()
+        
+        clinician_id = self.request.query_params.get('clinician_id')
+        if clinician_id:
+            return ClinicianSchedule.objects.filter(clinician_id=clinician_id)
+        return ClinicianSchedule.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        if self.request.user.role != 'ADMIN':
+            return Response(
+                {'error': 'Only administrators can manage schedules'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return super().create(request, *args, **kwargs)
+
+class ClinicianScheduleDeleteView(generics.DestroyAPIView):
+    """Delete/remove clinician time slots (F-011)"""
+    permission_classes = [IsAuthenticated]
+    # We query all schedules, but the lookup_field ('pk') in the URL
+    # will select the specific one to delete.
+    queryset = ClinicianSchedule.objects.all()
+    
+    def delete(self, request, *args, **kwargs):
+        if self.request.user.role != 'ADMIN':
+            return Response(
+                {'error': 'Only administrators can delete schedules'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return super().delete(request, *args, **kwargs)    
