@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import AppointmentHealthCheckView, ClinicianSearchView, ClinicianAvailabilityView, AppointmentBookingView, ClinicianDashboardView, ClinicianScheduleManagementView, ClinicianScheduleDeleteView
+from .views import AppointmentHealthCheckView, ClinicianSearchView, ClinicianAvailabilityView, AppointmentBookingView, ClinicianDashboardView, ClinicianScheduleManagementView, ClinicianScheduleDeleteView, AppointmentStatusUpdateView
 from django.urls import path
 
 urlpatterns = [
@@ -10,5 +10,6 @@ urlpatterns = [
     path('dashboard/', ClinicianDashboardView.as_view(), name='clinician-dashboard'),
     path('schedule/', ClinicianScheduleManagementView.as_view(), name='admin-schedule-manage'),
     path('schedule/<int:pk>/', ClinicianScheduleDeleteView.as_view(), name='admin-schedule-delete'),
+    path('status/<str:appointment_id>/', AppointmentStatusUpdateView.as_view(), name='appointment-status-update'),
     
 ]
