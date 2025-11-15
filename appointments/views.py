@@ -228,4 +228,47 @@ class ClinicianScheduleDeleteView(generics.DestroyAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        return super().delete(request, *args, **kwargs)    
+        return super().delete(request, *args, **kwargs)   
+
+
+class AppointmentStatusUpdateView(generics.UpdateAPIView):
+    """
+    Update appointment status (F-013)
+    """
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Appointment.objects.all()
+    # We use 'appointment_id' (e.g., "APT000001") as the URL lookup
+    lookup_field = 'appointment_id' 
+    
+    def update(self, request, *args, **kwargs):
+        # Check for Admin or Clinician role
+        if request.user.role not in ['ADMIN', 'CLINICIAN']:
+            return Response(
+                {'error': 'Only administrators or clinicians can update status'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        appointment = self.get_object()
+        new_status = request.data.get('status')
+        
+        # Validate the new status is one of the allowed choices
+        if new_status not in ['COMPLETED', 'CANCELLED', 'NO_SHOW']:
+            return Response(
+                {'error': 'Invalid status. Must be COMPLETED, CANCELLED, or NO_SHOW.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        appointment.status = new_status
+        appointment.save()
+        
+        # Log this action to the audit trail
+        from audit_logs.utils import log_action
+        log_action(
+            user=request.user,
+            action='APPOINTMENT_STATUS_UPDATED',
+            details=f"Appointment {appointment.appointment_id} marked as {new_status}"
+        )
+        
+        serializer = self.get_serializer(appointment)
+        return Response(serializer.data)     
