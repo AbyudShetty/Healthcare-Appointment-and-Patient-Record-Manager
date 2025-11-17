@@ -197,11 +197,15 @@ TIME_ZONE = 'Asia/Kolkata'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
 
-# -------------------------------------------------------------
-# Encryption Key (canonical)
-# -------------------------------------------------------------
-# Canonical key for ALL encryption, including files & PHI
-HCRM_ENCRYPTION_KEY = config("HCRM_ENCRYPTION_KEY", default=None)
+MY_FERNET_KEY = config("HCRM_ENCRYPTION_KEY", default=None)
 
-# Backwards compatibility: MY_FERNET_KEY points to same key
-MY_FERNET_KEY = HCRM_ENCRYPTION_KEY
+if MY_FERNET_KEY is None:
+    MY_FERNET_KEY = Fernet.generate_key().decode()
+
+HCRM_ENCRYPTION_KEY = config("HCRM_ENCRYPTION_KEY", default="")
+
+import sys
+
+if 'pytest' in sys.modules:
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
