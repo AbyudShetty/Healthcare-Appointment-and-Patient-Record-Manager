@@ -20,6 +20,9 @@ from .models import PatientDocument
 from .serializers import PatientDocumentSerializer, PatientDocumentUploadSerializer
 from .encryption import encrypt_file, decrypt_file
 
+from django.db.models import Q
+
+
 
 def _user_is_clinician_or_admin(user):
     """
@@ -241,3 +244,31 @@ class PatientDocumentListView(generics.ListAPIView):
     def get_queryset(self):
         patient = Patient.objects.get(user=self.request.user)
         return PatientDocument.objects.filter(patient=patient)
+    
+class PatientRecordSearchView(generics.ListAPIView):
+    """
+    Fast search/filter for patient records (F-015)
+    AC-F-015: Retrieval time <= 7 seconds
+    """
+    serializer_class = PatientRecordSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        if self.request.user.role not in ['CLINICIAN', 'ADMIN']:
+            return PatientRecord.objects.none()
+        
+        query = self.request.query_params.get('q', '')
+        
+        if not query:
+            return PatientRecord.objects.none()
+        
+        # Search by patient name or diagnosis
+        # Note: For encrypted fields, you'll need to decrypt in Python
+        # This is a simplified version - consider full-text search for production
+        queryset = PatientRecord.objects.filter(
+            Q(patient__user__first_name__icontains=query) |
+            Q(patient__user__last_name__icontains=query) |
+            Q(patient__patient_id__icontains=query)
+        ).select_related('patient__user', 'created_by')[:50]  # Limit results
+        
+        return queryset
