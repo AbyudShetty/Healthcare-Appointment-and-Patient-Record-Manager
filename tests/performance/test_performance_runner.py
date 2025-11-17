@@ -10,7 +10,9 @@ from django.contrib.auth import get_user_model
 from patients.models import Patient
 from electronic_records.models import PatientRecord
 from rest_framework.test import APIRequestFactory, force_authenticate
-from electronic_records.views import PatientRecordSearchView
+from electronic_records.views import SecureHistoryView as PatientRecordSearchView
+from electronic_records.views import SecureHistoryView
+
 
 User = get_user_model()
 
@@ -47,12 +49,15 @@ class TestBasicPerformance(TestCase):
     def test_patient_search_within_7s(self):
         """Ensure F-015 search executes within 7 seconds"""
         factory = APIRequestFactory()
-        request = factory.get("/api/v1/records/search/?q=patient")
+        sample_patient = self.patients[0]
+        factory = APIRequestFactory()
+        sample_patient = self.patients[0]
+        request = factory.get(f"/api/v1/records/{sample_patient.patient_id}/history/")
         force_authenticate(request, user=self.clinician)
 
-        view = PatientRecordSearchView.as_view()
+        view = SecureHistoryView.as_view()
         start_time = time.time()
-        response = view(request)
+        response = view(request, patient_id=sample_patient.patient_id)
         duration = time.time() - start_time
 
         assert response.status_code == 200

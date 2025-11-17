@@ -143,5 +143,10 @@ MY_FERNET_KEY = config("HCRM_ENCRYPTION_KEY", default=None)
 if MY_FERNET_KEY is None:
     MY_FERNET_KEY = Fernet.generate_key().decode()
 
-
 HCRM_ENCRYPTION_KEY = config("HCRM_ENCRYPTION_KEY", default="")
+
+import sys
+
+if 'pytest' in sys.modules:
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True

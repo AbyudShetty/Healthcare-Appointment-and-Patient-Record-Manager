@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 User = get_user_model()
 
@@ -32,3 +33,10 @@ def admin_user(db):
         role="ADMIN",
         is_staff=True
     )
+
+@pytest.fixture(scope="session", autouse=True)
+def force_celery_eager():
+    """Force Celery to run synchronously during pytest (no RabbitMQ)."""
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+    settings.CELERY_TASK_EAGER_PROPAGATES = True
+    yield
