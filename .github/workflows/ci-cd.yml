@@ -7,19 +7,12 @@ on:
     branches-ignore: []
   workflow_dispatch:
 
-#on:
-#  push:
-#    branches: [main, develop]
-#  pull_request:
-#    branches: [main]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       HCRM_ENCRYPTION_KEY: ${{ secrets.HCRM_ENCRYPTION_KEY }}
-
 
     # --- PostgreSQL service for Django tests ---
     services:
@@ -80,6 +73,26 @@ jobs:
             pytest tests/ --disable-warnings --maxfail=3
           else
             echo "No test directory found, skipping..."
+          fi
+
+      # --- 🧠 Add Performance Benchmark Tests ---
+      - name: Run performance tests
+        run: |
+          if [ -d "tests/performance" ]; then
+            echo "Running performance benchmarks..."
+            pytest tests/performance/test_database_performance.py --benchmark-only --benchmark-min-rounds=5
+          else
+            echo "No performance tests found, skipping..."
+          fi
+
+      - name: Generate performance report
+        if: always()
+        run: |
+          if [ -d "results" ]; then
+            echo "Performance test results:"
+            cat results/*.csv
+          else
+            echo "No performance results generated."
           fi
 
       # --- Frontend setup ---
