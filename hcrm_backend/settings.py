@@ -145,6 +145,16 @@ CORS_ALLOWED_ORIGINS = [
 # -------------------------------------------------------------
 AUTH_USER_MODEL = 'authentication.User'
 
+# ensure logs directory exists so file handlers can open the log file
+LOG_DIR = BASE_DIR / "logs"
+try:
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    # If the directory can't be created for some reason (permissions),
+    # fall back silently — logging handlers will raise an error later
+    pass
+
+
 # -------------------------------------------------------------
 # Logging
 # -------------------------------------------------------------
@@ -159,15 +169,16 @@ LOGGING = {
     },
 
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'hcrm.log'),
-            'maxBytes': 1024 * 1024 * 15,
-            'backupCount': 5,
-            'formatter': 'json',
+    'file': {
+        'level': 'INFO',
+        'class': 'logging.handlers.RotatingFileHandler',
+        'filename': str(LOG_DIR / 'hcrm.log'),   # NOTE: use str() when passing Path to logging config
+        'maxBytes': 1024 * 1024 * 15,
+        'backupCount': 5,
+        'formatter': 'json',
         },
     },
+
 
     'loggers': {
         'django': {
