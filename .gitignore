@@ -1,25 +1,72 @@
-*.env 
+# ======================
+# Environment Variables
+# ======================
+.env
+*.env
+
+# ======================
 # Python
+# ======================
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.env
+*.whl
+
+# ======================
+# Databases (local only)
+# ======================
 *.sqlite3
-logs/
 *.db
-*.sqlite3
+
+# ======================
+# Logs
+# ======================
+logs/
 *.log
 
-# Virtual environment
+# ======================
+# Virtual Environments
+# ======================
 venv/
 env/
 
-# VS Code
-.vscode/
+# ======================
+# pytest
+# ======================
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Frontend (Node/React)
-node_modules/
+# ======================
+# Django Generated Files
+# ======================
+staticfiles/
+media/
+
+# Uploads / Encrypted Documents (APP-SPECIFIC)
+# Prevent ANY PDFs or encrypted reports from being committed
+documents/
+
+# ======================
+# Build / Distribution
+# ======================
 dist/
 build/
 coverage/
+
+# ======================
+# VS Code
+# ======================
+.vscode/
+
+# ======================
+# Node / React
+# ======================
+node_modules/
+
+# ======================
+# OS junk files
+# ======================
+.DS_Store
+Thumbs.db
