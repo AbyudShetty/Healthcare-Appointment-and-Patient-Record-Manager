@@ -14,6 +14,8 @@ from appointments.serializers import (
 )
 from datetime import datetime
 from datetime import date
+from .models import Patient
+
 
 class AppointmentHealthCheckView(APIView):
     def get(self, request):
@@ -279,3 +281,29 @@ class AppointmentStatusUpdateView(generics.UpdateAPIView):
         
         serializer = self.get_serializer(appointment)
         return Response(serializer.data)     
+    
+class AppointmentListView(generics.ListAPIView):
+    """
+    List all appointments for the authenticated user
+    """
+    serializer_class = AppointmentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        if user.role == 'PATIENT':
+            # Get patient's appointments
+            try:
+                patient = Patient.objects.get(user=user)
+                return Appointment.objects.filter(patient=patient).order_by('-appointment_date', '-appointment_time')
+            except Patient.DoesNotExist:
+                return Appointment.objects.none()
+        elif user.role == 'CLINICIAN':
+            # Get clinician's appointments
+            return Appointment.objects.filter(clinician=user).order_by('-appointment_date', '-appointment_time')
+        elif user.role == 'ADMIN':
+            # Admin can see all
+            return Appointment.objects.all().order_by('-appointment_date', '-appointment_time')
+        
+        return Appointment.objects.none()
