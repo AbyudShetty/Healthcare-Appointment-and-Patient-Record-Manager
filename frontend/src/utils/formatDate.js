@@ -6,7 +6,7 @@ export const formatDate = (dateString) => {
   try {
     const date = typeof dateString === 'string' ? parseISO(dateString) : dateString
     return format(date, 'MMM dd, yyyy hh:mm a')
-  } catch (error) {
+  } catch {
     return dateString
   }
 }
@@ -17,7 +17,7 @@ export const formatDateShort = (dateString) => {
   try {
     const date = typeof dateString === 'string' ? parseISO(dateString) : dateString
     return format(date, 'MMM dd, yyyy')
-  } catch (error) {
+  } catch {
     return dateString
   }
 }
@@ -30,7 +30,7 @@ export const formatTime = (timeString) => {
     const date = new Date()
     date.setHours(parseInt(hours), parseInt(minutes))
     return format(date, 'hh:mm a')
-  } catch (error) {
+  } catch {
     return timeString
   }
 }
