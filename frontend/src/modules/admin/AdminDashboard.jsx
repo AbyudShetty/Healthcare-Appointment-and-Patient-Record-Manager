@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Box,
   Typography,
@@ -13,10 +13,9 @@ import {
   TrendingUp,
 } from '@mui/icons-material'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import axiosInstance from '../../api/axios'
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     totalUsers: 0,
     totalAppointments: 0,
     totalRecords: 0,

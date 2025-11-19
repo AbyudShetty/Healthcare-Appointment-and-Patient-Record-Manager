@@ -1,138 +1,133 @@
-import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState, useCallback } from 'react'
+import { useParams } from 'react-router-dom'
 import {
   Box,
   Typography,
   Card,
   CardContent,
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
+  TextField,
+  Button,
+  Divider,
 } from '@mui/material'
-import { CalendarToday, People, CheckCircle } from '@mui/icons-material'
 import axiosInstance from '../../api/axios'
 import { formatDate } from '../../utils/formatDate'
 
-const ClinicianDashboard = () => {
-  const { user } = useSelector((state) => state.auth)
-  const [dashboard, setDashboard] = useState({
-    date: new Date().toISOString().split('T')[0],
-    total_appointments: 0,
-    appointments: [],
-  })
-  const [loading, setLoading] = useState(true)
+const PatientNotes = () => {
+  const { patientId } = useParams()
+  const [records, setRecords] = useState([])
+  const [newNote, setNewNote] = useState('')
+  const [selectedRecordId, setSelectedRecordId] = useState(null)
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const today = new Date().toISOString().split('T')[0]
-        const response = await axiosInstance.get(`/appointments/dashboard/?date=${today}`)
-        setDashboard(response.data)
-      } catch (error) {
-        console.error('Failed to fetch dashboard:', error)
-      } finally {
-        setLoading(false)
+  // ✅ make fetchPatientRecords stable
+  const fetchPatientRecords = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(`/records/${patientId}/history/`)
+      setRecords(response.data)
+
+      if (response.data.length > 0) {
+        setSelectedRecordId(response.data[0].id)
       }
+    } catch (err) {
+      console.error('Failed to fetch records:', err)
     }
+  }, [patientId])
 
-    fetchDashboard()
-  }, [])
+  // ✅ FIX: Add dependency + call stable function
+  useEffect(() => {
+    fetchPatientRecords()
+  }, [fetchPatientRecords])
 
-  const stats = [
-    {
-      title: "Today's Appointments",
-      value: dashboard.total_appointments,
-      icon: <CalendarToday fontSize="large" />,
-      color: '#1976d2',
-    },
-    {
-      title: 'Total Patients',
-      value: '45',
-      icon: <People fontSize="large" />,
-      color: '#2e7d32',
-    },
-    {
-      title: 'Completed Today',
-      value: dashboard.appointments.filter((a) => a.status === 'COMPLETED').length,
-      icon: <CheckCircle fontSize="large" />,
-      color: '#ed6c02',
-    },
-  ]
+  const handleAddNote = async () => {
+    if (!newNote.trim() || !selectedRecordId) return
+
+    try {
+      await axiosInstance.post('/records/notes/add/', {
+        record_id: selectedRecordId,
+        note_content: newNote,
+      })
+      setNewNote('')
+      fetchPatientRecords()
+    } catch (err) {
+      console.error('Failed to add note:', err)
+    }
+  }
 
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Clinician Dashboard
+        Patient Clinical Notes
       </Typography>
       <Typography variant="subtitle1" color="textSecondary" gutterBottom>
-        Welcome, Dr. {user?.last_name || 'Clinician'}
+        Patient ID: {patientId}
       </Typography>
 
-      <Grid container spacing={3} sx={{ mt: 2, mb: 4 }}>
-        {stats.map((stat) => (
-          <Grid item xs={12} sm={6} md={4} key={stat.title}>
-            <Card>
-              <CardContent>
-                <Box display="flex" alignItems="center" justifyContent="space-between">
-                  <Box>
-                    <Typography color="textSecondary" gutterBottom>
-                      {stat.title}
-                    </Typography>
-                    <Typography variant="h3">{stat.value}</Typography>
-                  </Box>
-                  <Box sx={{ color: stat.color }}>{stat.icon}</Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      <Card>
+      <Card sx={{ mb: 3, mt: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            Today's Schedule
+            Add New Clinical Note
           </Typography>
-          <TableContainer component={Paper} elevation={0}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Time</TableCell>
-                  <TableCell>Patient</TableCell>
-                  <TableCell>Patient ID</TableCell>
-                  <TableCell>Reason</TableCell>
-                  <TableCell>Status</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {dashboard.appointments.map((appointment) => (
-                  <TableRow key={appointment.appointment_id}>
-                    <TableCell>{appointment.appointment_time}</TableCell>
-                    <TableCell>{appointment.patient_name}</TableCell>
-                    <TableCell>{appointment.patient_id}</TableCell>
-                    <TableCell>{appointment.reason_for_visit}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={appointment.status}
-                        size="small"
-                        color={appointment.status === 'COMPLETED' ? 'success' : 'primary'}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            placeholder="Enter clinical note..."
+            value={newNote}
+            onChange={(e) => setNewNote(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Button variant="contained" onClick={handleAddNote}>
+            Add Note
+          </Button>
         </CardContent>
       </Card>
+
+      {records.map((record) => (
+        <Card key={record.id} sx={{ mb: 2 }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Record Date: {formatDate(record.created_at)}
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="subtitle1" color="primary" gutterBottom>
+              Medical History
+            </Typography>
+            <Typography paragraph>{record.medical_history}</Typography>
+
+            <Typography variant="subtitle1" color="primary" gutterBottom>
+              Diagnoses
+            </Typography>
+            <Typography paragraph>{record.diagnoses}</Typography>
+
+            {record.clinical_notes?.length > 0 && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="subtitle1" color="primary" gutterBottom>
+                  Clinical Notes
+                </Typography>
+                {record.clinical_notes.map((note) => (
+                  <Box
+                    key={note.id}
+                    sx={{
+                      mb: 2,
+                      p: 2,
+                      backgroundColor: '#f5f5f5',
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
+                      {note.clinician} - {formatDate(note.created_at)}
+                    </Typography>
+                    <Typography>{note.decrypted_note}</Typography>
+                  </Box>
+                ))}
+              </>
+            )}
+          </CardContent>
+        </Card>
+      ))}
     </Box>
   )
 }
 
-export default ClinicianDashboard
+export default PatientNotes
