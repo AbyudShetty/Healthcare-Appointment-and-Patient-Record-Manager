@@ -2,22 +2,16 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import { defineConfig, globalIgnores } from 'eslint/config'
-import { FlatCompat } from '@eslint/eslintrc'
-
-// Compatibility wrapper for old-style configs
-const compat = new FlatCompat()
 
 export default defineConfig([
   globalIgnores(['dist']),
 
-  // Convert legacy configs (`js.configs.recommended`, react-hooks)
-  ...compat.extends(
-    js.configs.recommended,
-    reactHooks.configs.recommended
-  ),
-
   {
     files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.recommended,
+    ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
