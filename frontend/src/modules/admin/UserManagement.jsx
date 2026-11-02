@@ -15,7 +15,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import axiosInstance from '../../api/axios'
+import { fetchAllPages } from '../../api/pagination'
 
 const UserManagement = () => {
   const [users, setUsers] = useState([])
@@ -29,8 +29,7 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await axiosInstance.get('/admin/users/')
-      const data = Array.isArray(response.data) ? response.data : response.data.results || []
+      const data = await fetchAllPages('/admin/users/')
       setUsers(data)
       setError(null)
     } catch (error) {

@@ -16,7 +16,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import axiosInstance from '../../api/axios'
+import { fetchAllPages } from '../../api/pagination'
 import { formatDate } from '../../utils/formatDate'
 
 const SystemLogs = () => {
@@ -32,8 +32,7 @@ const SystemLogs = () => {
   const fetchLogs = async () => {
     try {
       setLoading(true)
-      const response = await axiosInstance.get('/admin/logs/')
-      const data = Array.isArray(response.data) ? response.data : response.data.results || []
+      const data = await fetchAllPages('/admin/logs/')
       setLogs(data)
       setError(null)
     } catch (error) {

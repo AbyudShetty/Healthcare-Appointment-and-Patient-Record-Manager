@@ -11,6 +11,7 @@ import {
 } from '@mui/material'
 import axiosInstance from '../../api/axios'
 import { formatDate } from '../../utils/formatDate'
+import { fetchAllPages } from '../../api/pagination'
 
 const PatientNotes = () => {
   const { patientId } = useParams()
@@ -20,8 +21,7 @@ const PatientNotes = () => {
 
   const fetchPatientRecords = useCallback(async () => {
     try {
-      const response = await axiosInstance.get(`/records/${patientId}/history/`)
-      const items = Array.isArray(response.data) ? response.data : response.data.results || []
+      const items = await fetchAllPages(`/records/${patientId}/history/`)
       setRecords(items)
       setSelectedRecordId(items[0]?.id ?? null)
     } catch (error) {
