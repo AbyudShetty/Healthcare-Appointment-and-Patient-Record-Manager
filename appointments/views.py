@@ -150,6 +150,9 @@ class AppointmentBookingView(generics.CreateAPIView):
                    and datetime.combine(appointment_date, t) < end for t, d in existing):
                 return Response({'error': 'This time slot is no longer available'}, status=status.HTTP_409_CONFLICT)
             appointment = serializer.save()
+            from notifications.models import ReminderJob
+            reminder_at = timezone.make_aware(datetime.combine(appointment.appointment_date, appointment.appointment_time)) - timedelta(hours=24)
+            ReminderJob.objects.create(appointment=appointment, due_at=max(reminder_at, timezone.now()))
         
         # Log action
         from audit_logs.utils import log_action
@@ -158,15 +161,6 @@ class AppointmentBookingView(generics.CreateAPIView):
             action='APPOINTMENT_BOOKED',
             details=f"Appointment {appointment.appointment_id} booked"
         )
-        
-        # Trigger reminder notification (async task)
-        from notifications.tasks import schedule_appointment_reminder
-        try:
-            reminder_at = timezone.make_aware(datetime.combine(appointment.appointment_date, appointment.appointment_time)) - timedelta(hours=24)
-            schedule_appointment_reminder.apply_async(args=[appointment.id], eta=max(reminder_at, timezone.now()))
-        except Exception:
-            import logging
-            logging.getLogger(__name__).exception('Unable to schedule reminder for appointment %s', appointment.appointment_id)
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
@@ -287,6 +281,8 @@ class AppointmentStatusUpdateView(generics.UpdateAPIView):
             return Response({'error': 'A closed appointment cannot change status'}, status=status.HTTP_409_CONFLICT)
         appointment.status = new_status
         appointment.save()
+        from notifications.models import ReminderJob
+        ReminderJob.objects.filter(appointment=appointment, state='PENDING').update(state='CANCELLED', updated_at=timezone.now())
         
         # Log this action to the audit trail
         from audit_logs.utils import log_action

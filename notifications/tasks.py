@@ -15,6 +15,8 @@ def schedule_appointment_reminder(appointment_id):
             return f"Reminder skipped for {appointment.appointment_id}: appointment is {appointment.status}"
         
         patient_email = appointment.patient.user.email
+        if not patient_email:
+            raise ValueError('Appointment has no patient email address')
         
         send_mail(
             subject='Appointment Reminder',
