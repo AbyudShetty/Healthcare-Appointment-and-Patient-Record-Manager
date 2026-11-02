@@ -97,3 +97,17 @@ def test_reschedule_replaces_pending_reminder_and_rejects_other_patient():
     job.refresh_from_db()
     assert job.state == 'PENDING' and job.claim_token == ''
     assert job.due_at == timezone.make_aware(datetime.combine(new_day, time(10))) - timedelta(days=1)
+
+
+@pytest.mark.django_db
+def test_cancellation_cancels_pending_job():
+    doctor = User.objects.create_user(username='cancel-doctor', role='CLINICIAN')
+    patient = Patient.objects.create(user=User.objects.create_user(username='cancel-patient', role='PATIENT'))
+    appointment = Appointment.objects.create(patient=patient, clinician=doctor, appointment_date=timezone.localdate(), appointment_time=time(9))
+    job = ReminderJob.objects.create(appointment=appointment, due_at=timezone.now())
+    client = APIClient()
+    client.force_authenticate(doctor)
+    url = reverse('appointment-status-update', kwargs={'appointment_id': appointment.appointment_id})
+    assert client.patch(url, {'status': 'CANCELLED'}, format='json').status_code == 200
+    job.refresh_from_db()
+    assert job.state == 'CANCELLED'

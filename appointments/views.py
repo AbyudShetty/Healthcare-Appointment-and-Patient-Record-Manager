@@ -154,14 +154,9 @@ class AppointmentBookingView(generics.CreateAPIView):
             from notifications.models import ReminderJob
             reminder_at = timezone.make_aware(datetime.combine(appointment.appointment_date, appointment.appointment_time)) - timedelta(hours=24)
             ReminderJob.objects.create(appointment=appointment, due_at=max(reminder_at, timezone.now()))
-        
-        # Log action
-        from audit_logs.utils import log_action
-        log_action(
-            user=request.user,
-            action='APPOINTMENT_BOOKED',
-            details=f"Appointment {appointment.appointment_id} booked"
-        )
+            from audit_logs.utils import log_action
+            log_action(user=request.user, action='APPOINTMENT_BOOKED',
+                       details=f"Appointment {appointment.appointment_id} booked")
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
@@ -321,20 +316,17 @@ class AppointmentStatusUpdateView(generics.UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        if appointment.status != 'SCHEDULED' and appointment.status != new_status:
-            return Response({'error': 'A closed appointment cannot change status'}, status=status.HTTP_409_CONFLICT)
-        appointment.status = new_status
-        appointment.save()
-        from notifications.models import ReminderJob
-        ReminderJob.objects.filter(appointment=appointment, state='PENDING').update(state='CANCELLED', updated_at=timezone.now())
-        
-        # Log this action to the audit trail
-        from audit_logs.utils import log_action
-        log_action(
-            user=request.user,
-            action='APPOINTMENT_STATUS_UPDATED',
-            details=f"Appointment {appointment.appointment_id} marked as {new_status}"
-        )
+        with transaction.atomic():
+            appointment = Appointment.objects.select_for_update().get(pk=appointment.pk)
+            if appointment.status != 'SCHEDULED' and appointment.status != new_status:
+                return Response({'error': 'A closed appointment cannot change status'}, status=status.HTTP_409_CONFLICT)
+            appointment.status = new_status
+            appointment.save()
+            from notifications.models import ReminderJob
+            ReminderJob.objects.filter(appointment=appointment, state='PENDING').update(state='CANCELLED', updated_at=timezone.now())
+            from audit_logs.utils import log_action
+            log_action(user=request.user, action='APPOINTMENT_STATUS_UPDATED',
+                       details=f"Appointment {appointment.appointment_id} marked as {new_status}")
         
         serializer = self.get_serializer(appointment)
         return Response(serializer.data)     
