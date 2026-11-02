@@ -1,4 +1,6 @@
 from datetime import timedelta, time, datetime
+from importlib import import_module
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -12,6 +14,8 @@ from notifications.tasks import schedule_appointment_reminder
 from notifications.models import ReminderJob
 from notifications.worker import process_one_reminder
 from patients.models import Patient
+from django.apps import apps
+from django.db import connection
 
 
 @pytest.mark.django_db
@@ -111,3 +115,16 @@ def test_cancellation_cancels_pending_job():
     assert client.patch(url, {'status': 'CANCELLED'}, format='json').status_code == 200
     job.refresh_from_db()
     assert job.state == 'CANCELLED'
+
+
+@pytest.mark.django_db
+def test_backfill_adds_future_scheduled_jobs_idempotently():
+    doctor = User.objects.create_user(username='backfill-doctor', role='CLINICIAN')
+    patient = Patient.objects.create(user=User.objects.create_user(username='backfill-patient', role='PATIENT'))
+    appointment = Appointment.objects.create(patient=patient, clinician=doctor,
+        appointment_date=timezone.localdate() + timedelta(days=3), appointment_time=time(9))
+    backfill = import_module('notifications.migrations.0002_backfill_reminders').backfill_reminders
+    editor = SimpleNamespace(connection=connection)
+    backfill(apps, editor)
+    backfill(apps, editor)
+    assert ReminderJob.objects.filter(appointment=appointment).count() == 1
