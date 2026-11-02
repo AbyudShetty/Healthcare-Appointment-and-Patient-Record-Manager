@@ -89,6 +89,9 @@ class SecureHistoryView(generics.ListAPIView):
         if not allowed:
             return Response({"detail": "Not authorized."}, status=status.HTTP_403_FORBIDDEN)
 
+        log_action(user=request.user, action='RECORD_HISTORY_VIEWED',
+                   details=f'Patient {patient.patient_id} history viewed',
+                   ip_address=request.META.get('REMOTE_ADDR'))
         # If authorized, return serialized records (ListAPIView handles pagination)
         queryset = self.filter_queryset(self.get_queryset())
 
