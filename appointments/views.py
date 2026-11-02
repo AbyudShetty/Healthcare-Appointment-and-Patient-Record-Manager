@@ -109,6 +109,12 @@ class AppointmentBookingView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        if request.user.role != 'PATIENT' or serializer.validated_data['patient'].user_id != request.user.id:
+            return Response({'error': 'Patients may only book their own appointments'}, status=status.HTTP_403_FORBIDDEN)
+        if serializer.validated_data['clinician'].role != 'CLINICIAN':
+            return Response({'error': 'Selected user is not a clinician'}, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.validated_data.get('status', 'SCHEDULED') != 'SCHEDULED':
+            return Response({'error': 'New appointments must be scheduled'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Check if slot is still available
         clinician_id = serializer.validated_data['clinician'].id
@@ -255,6 +261,8 @@ class AppointmentStatusUpdateView(generics.UpdateAPIView):
             )
         
         appointment = self.get_object()
+        if request.user.role == 'CLINICIAN' and appointment.clinician_id != request.user.id:
+            return Response({'error': 'You may only update your own appointments'}, status=status.HTTP_403_FORBIDDEN)
         new_status = request.data.get('status')
         
         # Validate the new status is one of the allowed choices
