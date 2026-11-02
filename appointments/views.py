@@ -160,13 +160,11 @@ class AppointmentBookingView(generics.CreateAPIView):
         # Trigger reminder notification (async task)
         from notifications.tasks import schedule_appointment_reminder
         try:
-            from django.conf import settings
-            if getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False):
-                schedule_appointment_reminder(appointment.id)
-            else:
-                schedule_appointment_reminder.delay(appointment.id)
-        except Exception as e:
-            print(f"[⚠️ Celery skipped in test mode] {e}")
+            reminder_at = timezone.make_aware(datetime.combine(appointment.appointment_date, appointment.appointment_time)) - timedelta(hours=24)
+            schedule_appointment_reminder.apply_async(args=[appointment.id], eta=max(reminder_at, timezone.now()))
+        except Exception:
+            import logging
+            logging.getLogger(__name__).exception('Unable to schedule reminder for appointment %s', appointment.appointment_id)
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     

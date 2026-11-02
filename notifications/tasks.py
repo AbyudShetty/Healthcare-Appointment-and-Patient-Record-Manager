@@ -2,7 +2,6 @@ from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from appointments.models import Appointment
-from datetime import datetime, timedelta
 
 @shared_task
 def schedule_appointment_reminder(appointment_id):
@@ -12,16 +11,8 @@ def schedule_appointment_reminder(appointment_id):
     """
     try:
         appointment = Appointment.objects.get(id=appointment_id)
-        
-        # Calculate reminder time (24 hours before)
-        appointment_datetime = datetime.combine(
-            appointment.appointment_date,
-            appointment.appointment_time
-        )
-        reminder_time = appointment_datetime - timedelta(hours=24)
-        
-        # In production, schedule this task to run at reminder_time
-        # For now, send immediately for testing
+        if appointment.status != 'SCHEDULED':
+            return f"Reminder skipped for {appointment.appointment_id}: appointment is {appointment.status}"
         
         patient_email = appointment.patient.user.email
         

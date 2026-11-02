@@ -204,6 +204,11 @@ if MY_FERNET_KEY is None:
 
 HCRM_ENCRYPTION_KEY = config("HCRM_ENCRYPTION_KEY", default="")
 
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_TIMEZONE = TIME_ZONE
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
+
 import sys
 
 if 'pytest' in sys.modules:

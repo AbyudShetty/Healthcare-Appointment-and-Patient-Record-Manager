@@ -19,3 +19,7 @@ except Exception as exc:
         "Provided Fernet key (HCRM_ENCRYPTION_KEY or MY_FERNET_KEY) is not valid. "
         "It must be a 32-byte url-safe base64-encoded string."
     ) from exc
+
+from .celery import app as celery_app
+
+__all__ = ('celery_app',)
