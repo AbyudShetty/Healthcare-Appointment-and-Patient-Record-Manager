@@ -143,6 +143,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
+CACHE_URL = config('CACHE_URL', default='')
+if CACHE_URL:
+    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.redis.RedisCache', 'LOCATION': CACHE_URL}}
+
 # -------------------------------------------------------------
 # User Model
 # -------------------------------------------------------------

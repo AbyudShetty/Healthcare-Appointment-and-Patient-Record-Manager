@@ -19,7 +19,7 @@ The HCRM System is a full-stack healthcare management platform that enables:
 ### Appointment System (HCRM-F-003 to F-007)
 - Clinician search and availability checking
 - Real-time appointment booking with conflict prevention
-- Email reminders scheduled 24 hours before appointments when the Celery worker and broker are available
+- Email reminders scheduled 24 hours before appointments when the reminder worker is running
 - Clinician daily dashboard with patient schedules
 
 ### Electronic Patient Records (HCRM-F-008 to F-010)
@@ -49,7 +49,7 @@ hcrm-project/
 ├── patients/               # Patient profiles
 ├── appointments/           # Appointment booking & schedules
 ├── electronic_records/     # EPR with encryption
-├── notifications/          # Email reminders (Celery)
+├── notifications/          # Durable email reminder jobs
 ├── audit_logs/            # Audit trail
 ├── reporting/             # Analytics & reports
 └── hcrm_backend/          # Django settings & middleware
@@ -76,7 +76,7 @@ frontend/
 - Python 3.11+
 - Node.js 18+
 - PostgreSQL 15+
-- Redis (for Celery)
+- A shared cache such as Redis for production HTTP throttling across processes
 
 ### Backend Setup
 
@@ -172,7 +172,7 @@ Frontend will be available at `http://localhost:3000`
 - Role-Based Access Control (RBAC): Patient, Clinician, Admin
 - Token expiration: 24 hours (access), 7 days (refresh)
 - Enroll a TOTP authenticator in Security settings using a QR code and save the one-use recovery codes. Enabling or disabling MFA revokes existing API sessions. Django admin access is blocked for MFA-enabled users because its session login has no MFA challenge. Identity-verified administrator recovery is available through the `reset_mfa` management command; restrict shell/database access to trusted operators, independently verify identity, and record a non-sensitive case reference. The command records the supplied operator account; it does not independently authenticate the shell operator.
-- MFA code failures are limited per account in the database. HTTP login and enrollment throttles use Django's cache; configure a shared cache for enforcement across multiple application processes.
+- MFA code failures are limited per account in the database. HTTP login and enrollment throttles use Django's cache; set `CACHE_URL` to a shared Redis URL for enforcement across multiple application processes.
 
 ### Data Encryption (HCRM-SR-001)
 - Fernet symmetric encryption for selected clinical record fields and documents
