@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Box,
@@ -18,11 +18,7 @@ const PatientNotes = () => {
   const [newNote, setNewNote] = useState('')
   const [selectedRecordId, setSelectedRecordId] = useState(null)
 
-  useEffect(() => {
-    fetchPatientRecords()
-  }, [patientId])
-
-  const fetchPatientRecords = async () => {
+  const fetchPatientRecords = useCallback(async () => {
     try {
       const response = await axiosInstance.get(`/records/${patientId}/history/`)
       const items = Array.isArray(response.data) ? response.data : response.data.results || []
@@ -31,7 +27,11 @@ const PatientNotes = () => {
     } catch (error) {
       console.error('Failed to fetch records:', error)
     }
-  }
+  }, [patientId])
+
+  useEffect(() => {
+    fetchPatientRecords()
+  }, [fetchPatientRecords])
 
   const handleAddNote = async () => {
     if (!newNote.trim() || !selectedRecordId) return

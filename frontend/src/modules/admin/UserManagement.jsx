@@ -12,12 +12,9 @@ import {
   TableRow,
   Paper,
   Chip,
-  Button,
-  IconButton,
   CircularProgress,
   Alert,
 } from '@mui/material'
-import { Edit, Delete } from '@mui/icons-material'
 import axiosInstance from '../../api/axios'
 
 const UserManagement = () => {
@@ -66,7 +63,6 @@ const UserManagement = () => {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4">User Management</Typography>
-        <Button variant="contained">Add New User</Button>
       </Box>
 
       {error && (
@@ -105,12 +101,7 @@ const UserManagement = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <IconButton size="small" color="primary">
-                          <Edit />
-                        </IconButton>
-                        <IconButton size="small" color="error">
-                          <Delete />
-                        </IconButton>
+                        Read only
                       </TableCell>
                     </TableRow>
                   ))}
