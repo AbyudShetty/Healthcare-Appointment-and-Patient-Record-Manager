@@ -69,6 +69,8 @@ class PatientProfileUpdateView(generics.RetrieveUpdateAPIView):
             })
     
     def update(self, request, *args, **kwargs):
+        if self.get_object() is None:
+            return Response({'detail': 'Patient profile not found.'}, status=status.HTTP_404_NOT_FOUND)
         response = super().update(request, *args, **kwargs)
         
         # Log action

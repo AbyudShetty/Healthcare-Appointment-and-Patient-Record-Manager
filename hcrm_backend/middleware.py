@@ -15,7 +15,6 @@ class SecurityHeadersMiddleware:
         response['X-Content-Type-Options'] = 'nosniff'
         response['X-Frame-Options'] = 'DENY'
         response['X-XSS-Protection'] = '1; mode=block'
-        response['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
         return response
 
 class SanitizeErrorMiddleware:

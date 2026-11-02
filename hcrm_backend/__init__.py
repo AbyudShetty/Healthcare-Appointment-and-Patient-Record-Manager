@@ -1,9 +1,9 @@
-import os
+from decouple import config
 from django.core.exceptions import ImproperlyConfigured
 from cryptography.fernet import Fernet
 
 # Accept either HCRM_ENCRYPTION_KEY (preferred) or MY_FERNET_KEY for backward compatibility
-_key = os.getenv("HCRM_ENCRYPTION_KEY", "").strip() or os.getenv("MY_FERNET_KEY", "").strip()
+_key = config("HCRM_ENCRYPTION_KEY", default="").strip() or config("MY_FERNET_KEY", default="").strip()
 
 if not _key:
     raise ImproperlyConfigured(
