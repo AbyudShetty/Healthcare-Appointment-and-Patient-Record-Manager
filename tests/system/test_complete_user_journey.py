@@ -58,7 +58,8 @@ class TestCompletePatientJourney:
             'user': {
                 'username': 'journey_patient',
                 'email': 'patient@example.com',
-                'password': 'PatientPass123!'
+                'password': 'PatientPass123!',
+                'password_confirm': 'PatientPass123!'
             }
         }
         
