@@ -74,3 +74,26 @@ def test_expired_final_lease_fails_and_is_visible_only_to_admin():
     assert client.get(reverse('failed-reminders')).status_code == 403
     client.force_authenticate(admin)
     assert client.get(reverse('failed-reminders')).data['count'] == 1
+
+
+@pytest.mark.django_db
+def test_reschedule_replaces_pending_reminder_and_rejects_other_patient():
+    doctor = User.objects.create_user(username='move-doctor', role='CLINICIAN')
+    owner = User.objects.create_user(username='move-patient', role='PATIENT')
+    other = User.objects.create_user(username='move-other', role='PATIENT')
+    patient = Patient.objects.create(user=owner)
+    day = timezone.localdate() + timedelta(days=3)
+    new_day = day + timedelta(days=1)
+    appointment = Appointment.objects.create(patient=patient, clinician=doctor, appointment_date=day, appointment_time=time(9))
+    job = ReminderJob.objects.create(appointment=appointment, due_at=timezone.now(), state='RUNNING', claim_token='old')
+    ClinicianSchedule.objects.create(clinician=doctor, date=new_day, start_time=time(10), end_time=time(10, 30))
+    client = APIClient()
+    client.force_authenticate(other)
+    url = reverse('appointment-reschedule', kwargs={'appointment_id': appointment.appointment_id})
+    payload = {'appointment_date': new_day.isoformat(), 'appointment_time': '10:00'}
+    assert client.patch(url, payload, format='json').status_code == 403
+    client.force_authenticate(owner)
+    assert client.patch(url, payload, format='json').status_code == 200
+    job.refresh_from_db()
+    assert job.state == 'PENDING' and job.claim_token == ''
+    assert job.due_at == timezone.make_aware(datetime.combine(new_day, time(10))) - timedelta(days=1)
