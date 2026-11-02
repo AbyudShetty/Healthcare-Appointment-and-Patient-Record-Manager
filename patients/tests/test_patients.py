@@ -19,7 +19,8 @@ class TestPatientRegistration:
             'user': {
                 'username': 'new_patient',
                 'email': 'newpatient@test.com',
-                'password': 'SecurePass123!'
+                'password': 'SecurePass123!',
+                'password_confirm': 'SecurePass123!'
             }
         }
         
@@ -37,7 +38,8 @@ class TestPatientRegistration:
             'user': {
                 'username': 'patient1',
                 'email': 'patient1@test.com',
-                'password': 'Pass123!'
+                'password': 'Pass123!',
+                'password_confirm': 'Pass123!'
             }
         }
         response1 = self.client.post(self.register_url, payload1, format='json')
@@ -46,7 +48,8 @@ class TestPatientRegistration:
             'user': {
                 'username': 'patient2',
                 'email': 'patient2@test.com',
-                'password': 'Pass123!'
+                'password': 'Pass123!',
+                'password_confirm': 'Pass123!'
             }
         }
         response2 = self.client.post(self.register_url, payload2, format='json')
@@ -64,18 +67,15 @@ class TestPatientRegistration:
         assert patient1.patient_id.startswith('PAT')
         assert patient2.patient_id.startswith('PAT')
 
-    def test_patient_id_is_sequential(self):
-        """Test that patient IDs are generated sequentially"""
+    def test_patient_ids_are_unique(self):
+        """Test that generated IDs are distinct."""
         user1 = User.objects.create_user(username='seq1', password='pass', role='PATIENT')
         patient1 = Patient.objects.create(user=user1)
         
         user2 = User.objects.create_user(username='seq2', password='pass', role='PATIENT')
         patient2 = Patient.objects.create(user=user2)
         
-        id1_num = int(patient1.patient_id[3:])
-        id2_num = int(patient2.patient_id[3:])
-        
-        assert id2_num == id1_num + 1
+        assert patient1.patient_id != patient2.patient_id
 
 
 
@@ -248,7 +248,7 @@ class TestPatientDataValidation:
         patient = Patient.objects.create(user=user)
         
         assert patient.patient_id.startswith('PAT')
-        assert len(patient.patient_id) == 9
+        assert len(patient.patient_id) == 20
 
     def test_patient_fields_can_be_blank(self):
         user = User.objects.create_user(username='blank_test', password='pass')

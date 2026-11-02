@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from authentication.models import User
 from audit_logs.utils import log_action
+from audit_logs.models import AuditLog
 
 
 @pytest.mark.django_db
@@ -34,7 +35,7 @@ class TestAuditLogging:
             details="Test audit log entry"
         )
         # Currently just prints, so we verify it doesn't crash
-        assert result is None
+        assert AuditLog.objects.filter(pk=result.pk, action='TEST_ACTION').exists()
 
     def test_admin_can_access_logs_endpoint(self):
         """Test that admin users can access audit logs endpoint"""
@@ -44,7 +45,7 @@ class TestAuditLogging:
         
         assert response.status_code == 200
         # Currently returns empty array
-        assert isinstance(response.data, list)
+        assert isinstance(response.data['results'], list)
 
     def test_non_admin_cannot_access_logs(self):
         """Test that non-admin users are forbidden from accessing logs"""
@@ -77,8 +78,8 @@ class TestAuditLogCreation:
     def test_appointment_booking_triggers_audit_log(self):
         """Test that booking an appointment creates an audit log entry"""
         from patients.models import Patient
-        from appointments.models import Appointment
-        from datetime import date, time
+        from appointments.models import ClinicianSchedule
+        from datetime import date, time, timedelta
         
         patient_user = User.objects.create_user(
             username="patient_booking_audit",
@@ -91,17 +92,19 @@ class TestAuditLogCreation:
         
         # Book appointment (should trigger audit log)
         url = reverse('appointment-book')
+        day = date.today() + timedelta(days=1)
+        ClinicianSchedule.objects.create(clinician=self.clinician, date=day, start_time=time(10), end_time=time(10, 30))
         payload = {
             'patient': patient.id,
             'clinician': self.clinician.id,
-            'appointment_date': date.today().strftime('%Y-%m-%d'),
+            'appointment_date': day.strftime('%Y-%m-%d'),
             'appointment_time': time(10, 0).strftime('%H:%M:%S'),
             'reason_for_visit': 'Audit test'
         }
         
         response = self.client.post(url, payload, format='json')
         assert response.status_code == 201
-        # Audit log would be created (currently just prints)
+        assert AuditLog.objects.filter(user=patient_user, action='APPOINTMENT_BOOKED').exists()
 
     def test_record_creation_triggers_audit_log(self):
         """Test that creating a patient record triggers audit log"""

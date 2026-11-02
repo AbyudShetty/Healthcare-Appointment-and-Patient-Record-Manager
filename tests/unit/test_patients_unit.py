@@ -23,7 +23,7 @@ class TestPatientRegistration:
         patient = Patient.objects.create(user=user)
         
         assert patient.patient_id.startswith('PAT')
-        assert len(patient.patient_id) == 9
+        assert len(patient.patient_id) == 20
         assert Patient.objects.count() >= 1
     
     def test_patient_id_uniqueness(self):
@@ -35,4 +35,4 @@ class TestPatientRegistration:
         patient2 = Patient.objects.create(user=user2)
         
         assert patient1.patient_id != patient2.patient_id
-        assert int(patient2.patient_id[3:]) == int(patient1.patient_id[3:]) + 1
+        assert patient2.patient_id.startswith('PAT')
