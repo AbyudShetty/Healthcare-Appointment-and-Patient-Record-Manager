@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 # SimpleJWT auth so "Authorization: Bearer <access_token>" is honored
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from authentication.jwt import MFAJWTAuthentication
 
 from patients.models import Patient
 from electronic_records.models import PatientRecord, ClinicalNote
@@ -49,7 +49,7 @@ class SecureHistoryView(generics.ListAPIView):
     serializer_class = PatientRecordSerializer
 
     # Ensure view uses SimpleJWT to interpret Authorization header
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [MFAJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -79,6 +79,9 @@ class SecureHistoryView(generics.ListAPIView):
             if getattr(request.user, "role", None) == "PATIENT":
                 # patient must be linked to a user object
                 if not hasattr(patient, "user") or patient.user != request.user:
+                    log_action(user=request.user, action='RECORD_HISTORY_DENIED',
+                               details=f'Patient {patient.patient_id} history denied',
+                               ip_address=request.META.get('REMOTE_ADDR'))
                     return Response(
                         {"detail": "Not allowed to view other patients' records."},
                         status=status.HTTP_403_FORBIDDEN,
@@ -88,6 +91,9 @@ class SecureHistoryView(generics.ListAPIView):
                 allowed = False
 
         if not allowed:
+            log_action(user=request.user, action='RECORD_HISTORY_DENIED',
+                       details=f'Patient {patient.patient_id} history denied',
+                       ip_address=request.META.get('REMOTE_ADDR'))
             return Response({"detail": "Not authorized."}, status=status.HTTP_403_FORBIDDEN)
 
         log_action(user=request.user, action='RECORD_HISTORY_VIEWED',
@@ -232,7 +238,7 @@ class PatientDocumentUploadView(generics.CreateAPIView):
         log_action(
             user=request.user,
             action='DOCUMENT_UPLOADED',
-            details=f"Document {file.name} uploaded for patient {patient.patient_id}"
+            details=f"Document {document.pk} uploaded for patient {patient.patient_id}"
         )
         
         return Response(

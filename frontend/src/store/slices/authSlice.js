@@ -3,11 +3,12 @@ import axiosInstance from '../../api/axios'
 
 export const login = createAsyncThunk(
   'auth/login',
-  async ({ username, password }, { rejectWithValue }) => {
+  async ({ username, password, mfa_code }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post('/auth/login/', {
         username,
         password,
+        mfa_code,
       })
       
       const { access, refresh } = response.data

@@ -14,6 +14,7 @@ import Reports from './modules/admin/Reports'
 import SystemLogs from './modules/admin/SystemLogs'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Layout from './components/Layout'
+import MFASettings from './modules/auth/MFASettings'
 
 function App() {
   const { isAuthenticated, restoring, user } = useSelector((state) => state.auth)
@@ -29,6 +30,7 @@ function App() {
         
         <Route path="/" element={<ProtectedRoute />}>
           <Route element={<Layout />}>
+            <Route path="settings/security" element={<MFASettings />} />
             {/* Patient Routes */}
             <Route path="dashboard" element={<PatientDashboard />} />
             <Route path="records" element={<PatientRecords />} />
