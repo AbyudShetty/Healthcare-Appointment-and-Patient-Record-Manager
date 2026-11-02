@@ -49,6 +49,8 @@ class PatientProfileUpdateView(generics.RetrieveUpdateAPIView):
         patient = self.get_object()
         
         if patient:
+            log_action(user=request.user, action='PROFILE_VIEWED', details=f'Patient {patient.patient_id} profile viewed',
+                       ip_address=request.META.get('REMOTE_ADDR'))
             serializer = self.get_serializer(patient)
             data = serializer.data
             # Add user ID for appointment booking

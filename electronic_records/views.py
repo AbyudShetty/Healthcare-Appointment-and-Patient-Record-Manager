@@ -250,6 +250,11 @@ class PatientDocumentListView(generics.ListAPIView):
     """List patient's documents"""
     serializer_class = PatientDocumentSerializer
     permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        log_action(user=request.user, action='DOCUMENT_LIST_VIEWED', details='Patient documents listed',
+                   ip_address=request.META.get('REMOTE_ADDR'))
+        return super().list(request, *args, **kwargs)
     
     def get_queryset(self):
         patient = get_object_or_404(Patient, user=self.request.user)
@@ -279,6 +284,12 @@ class PatientRecordSearchView(generics.ListAPIView):
     """
     serializer_class = PatientRecordSerializer
     permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        action = 'RECORD_SEARCHED' if request.user.role in ['CLINICIAN', 'ADMIN'] else 'RECORD_SEARCH_DENIED'
+        log_action(user=request.user, action=action, details='Patient record search requested',
+                   ip_address=request.META.get('REMOTE_ADDR'))
+        return super().list(request, *args, **kwargs)
     
     def get_queryset(self):
         if self.request.user.role not in ['CLINICIAN', 'ADMIN']:
