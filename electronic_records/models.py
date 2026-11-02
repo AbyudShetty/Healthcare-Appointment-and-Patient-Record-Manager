@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from patients.models import Patient
-from electronic_records.utils import encrypt_field  
+from electronic_records.utils import encrypt_field, decrypt_field
 import os
 from django.core.validators import FileExtensionValidator
 
@@ -32,15 +32,15 @@ class PatientRecord(models.Model):
     # Simple property getters to match serializer fields (pretend-decrypted)
     @property
     def medical_history(self):
-        return self.medical_history_encrypted
+        return decrypt_field(self.medical_history_encrypted)
 
     @property
     def diagnoses(self):
-        return self.diagnoses_encrypted
+        return decrypt_field(self.diagnoses_encrypted)
 
     @property
     def medications(self):
-        return self.medications_encrypted
+        return decrypt_field(self.medications_encrypted)
 
 
 class ClinicalNote(models.Model):
@@ -70,18 +70,11 @@ class ClinicalNote(models.Model):
         - We decode bytes to utf-8 string to store in TextField.
         - On update (existing pk) we do not re-encrypt to avoid double-encryption.
         """
-        try:
-            # Only encrypt on first save (create) and only if the field is non-empty
-            if self.pk is None and self.note_content_encrypted:
-                token = encrypt_field(self.note_content_encrypted)
-                if isinstance(token, (bytes, bytearray)):
-                    token = token.decode("utf-8")
-                # store the token string in the TextField
-                self.note_content_encrypted = token
-        except Exception:
-            # In dev, fail-open: don't block saves if encryption unexpectedly fails
-            # In production, log/raise appropriately
-            pass
+        if self.pk is None and self.note_content_encrypted:
+            token = encrypt_field(self.note_content_encrypted)
+            if isinstance(token, (bytes, bytearray)):
+                token = token.decode("utf-8")
+            self.note_content_encrypted = token
 
         super().save(*args, **kwargs)
 

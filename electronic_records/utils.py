@@ -1,6 +1,7 @@
 # electronic_records/utils.py
 from cryptography.fernet import Fernet
 from django.conf import settings
+import ast
 
 def _get_fernet():
     key = getattr(settings, "MY_FERNET_KEY", None)
@@ -20,6 +21,12 @@ def decrypt_field(value):
 
     try:
         f = _get_fernet()
+        if isinstance(value, str):
+            # Older writes passed bytes to TextField, producing a bytes literal.
+            if value.startswith(("b'", 'b"')):
+                parsed = ast.literal_eval(value)
+                if isinstance(parsed, bytes):
+                    value = parsed
         if isinstance(value, str):
             value = value.encode()
         return f.decrypt(value).decode("utf-8")

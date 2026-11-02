@@ -128,9 +128,9 @@ class QuickRecordCreateView(generics.CreateAPIView):
         record = PatientRecord.objects.create(
             patient=patient,
             created_by=request.user,
-            medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')),
-            diagnoses_encrypted=encrypt_field(request.data.get('diagnoses', '')),
-            medications_encrypted=encrypt_field(request.data.get('medications', ''))
+            medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')).decode() if request.data.get('medical_history') else '',
+            diagnoses_encrypted=encrypt_field(request.data.get('diagnoses', '')).decode() if request.data.get('diagnoses') else '',
+            medications_encrypted=encrypt_field(request.data.get('medications', '')).decode() if request.data.get('medications') else ''
         )
 
         # Log action
