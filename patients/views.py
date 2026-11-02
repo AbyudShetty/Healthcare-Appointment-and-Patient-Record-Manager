@@ -54,6 +54,7 @@ class PatientProfileUpdateView(generics.RetrieveUpdateAPIView):
             # Add user ID for appointment booking
             data['id'] = patient.id  # This is the Patient model ID
             data['user_id'] = request.user.id  # This is the User model ID
+            data['role'] = request.user.role
             return Response(data)
         else:
             # Return basic user info

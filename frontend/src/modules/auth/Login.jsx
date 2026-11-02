@@ -27,7 +27,8 @@ const Login = () => {
     e.preventDefault()
     const result = await dispatch(login(credentials))
     if (login.fulfilled.match(result)) {
-      navigate('/dashboard')
+      const role = result.payload.user.role
+      navigate(role === 'ADMIN' ? '/admin/dashboard' : role === 'CLINICIAN' ? '/clinician/dashboard' : '/dashboard')
     }
   }
 

@@ -25,10 +25,9 @@ const PatientNotes = () => {
   const fetchPatientRecords = async () => {
     try {
       const response = await axiosInstance.get(`/records/${patientId}/history/`)
-      setRecords(response.data)
-      if (response.data.length > 0) {
-        setSelectedRecordId(response.data[0].id)
-      }
+      const items = Array.isArray(response.data) ? response.data : response.data.results || []
+      setRecords(items)
+      setSelectedRecordId(items[0]?.id ?? null)
     } catch (error) {
       console.error('Failed to fetch records:', error)
     }
