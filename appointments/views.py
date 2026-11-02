@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
+from django.db import transaction
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from appointments.models import Appointment, ClinicianSchedule
 from authentication.models import User
@@ -14,6 +16,7 @@ from appointments.serializers import (
 )
 from datetime import datetime
 from datetime import date
+from datetime import timedelta
 from patients   .models import Patient
 
 
@@ -81,18 +84,20 @@ class ClinicianAvailabilityView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
 
-        booked_slots = set(
+        booked_slots = list(
             Appointment.objects.filter(
                 clinician_id=clinician_id,
                 appointment_date=date_obj,
                 status__iexact='SCHEDULED'
-            ).values_list('appointment_time', flat=True)
+            ).values_list('appointment_time', 'duration_minutes')
         )
 
         available_slots = []
         for slot in serializer.data:
-            slot_time = datetime.strptime(slot['start_time'], "%H:%M:%S").time()
-            if slot_time not in booked_slots:
+            slot_start = datetime.combine(date_obj, datetime.strptime(slot['start_time'], "%H:%M:%S").time())
+            slot_end = datetime.combine(date_obj, datetime.strptime(slot['end_time'], "%H:%M:%S").time())
+            if not any(slot_start < datetime.combine(date_obj, t) + timedelta(minutes=d)
+                       and datetime.combine(date_obj, t) < slot_end for t, d in booked_slots):
                 available_slots.append(slot)
 
         return Response(available_slots)
@@ -121,22 +126,28 @@ class AppointmentBookingView(generics.CreateAPIView):
         appointment_date = serializer.validated_data['appointment_date']
         appointment_time = serializer.validated_data['appointment_time']
         
-        # Check for conflicts
-        conflict = Appointment.objects.filter(
-            clinician_id=clinician_id,
-            appointment_date=appointment_date,
-            appointment_time=appointment_time,
-            status='SCHEDULED'
-        ).exists()
-        
-        if conflict:
-            return Response(
-                {'error': 'This time slot is no longer available'},
-                status=status.HTTP_409_CONFLICT
-            )
-        
-        # Create appointment
-        appointment = serializer.save()
+        duration = serializer.validated_data.get('duration_minutes', 30)
+        start = datetime.combine(appointment_date, appointment_time)
+        end = start + timedelta(minutes=duration)
+        if duration <= 0 or end.date() != appointment_date or timezone.make_aware(start) <= timezone.now():
+            return Response({'error': 'Choose a future time and a valid duration'}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            # Serialize all booking requests for a clinician, including overlapping slots.
+            User.objects.select_for_update().get(pk=clinician_id)
+            schedule = ClinicianSchedule.objects.filter(
+                clinician_id=clinician_id, date=appointment_date,
+                start_time=appointment_time, is_available=True,
+            ).first()
+            if not schedule or end.time() > schedule.end_time:
+                return Response({'error': 'Choose an available schedule slot'}, status=status.HTTP_400_BAD_REQUEST)
+            existing = Appointment.objects.filter(
+                clinician_id=clinician_id, appointment_date=appointment_date, status='SCHEDULED'
+            ).values_list('appointment_time', 'duration_minutes')
+            if any(start < datetime.combine(appointment_date, t) + timedelta(minutes=d)
+                   and datetime.combine(appointment_date, t) < end for t, d in existing):
+                return Response({'error': 'This time slot is no longer available'}, status=status.HTTP_409_CONFLICT)
+            appointment = serializer.save()
         
         # Log action
         from audit_logs.utils import log_action

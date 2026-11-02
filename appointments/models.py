@@ -1,6 +1,7 @@
 from django.db import models
 from authentication.models import User
 from patients.models import Patient
+from uuid import uuid4
 
 class ClinicianSchedule(models.Model):
     """Manages clinician availability (HCRM-F-004)"""
@@ -47,12 +48,7 @@ class Appointment(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.appointment_id:
-            last_appt = Appointment.objects.order_by('-id').first()
-            if last_appt:
-                new_id = int(last_appt.appointment_id[3:]) + 1
-            else:
-                new_id = 1
-            self.appointment_id = f"APT{new_id:06d}"
+            self.appointment_id = f"APT{uuid4().hex[:17].upper()}"
         super().save(*args, **kwargs)
 
     def __str__(self):
