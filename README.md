@@ -19,11 +19,11 @@ The HCRM System is a full-stack healthcare management platform that enables:
 ### Appointment System (HCRM-F-003 to F-007)
 - Clinician search and availability checking
 - Real-time appointment booking with conflict prevention
-- Automated email/SMS reminders (24 hours before appointments)
+- Email reminders scheduled 24 hours before appointments when the Celery worker and broker are available
 - Clinician daily dashboard with patient schedules
 
 ### Electronic Patient Records (HCRM-F-008 to F-010)
-- AES-256 encrypted medical records
+- Fernet-encrypted clinical record fields
 - Clinical notes with audit trail
 - Quick record creation workflow
 - Secure patient history access
@@ -49,7 +49,7 @@ hcrm-project/
 ├── patients/               # Patient profiles
 ├── appointments/           # Appointment booking & schedules
 ├── electronic_records/     # EPR with encryption
-├── notifications/          # Email/SMS reminders (Celery)
+├── notifications/          # Email reminders (Celery)
 ├── audit_logs/            # Audit trail
 ├── reporting/             # Analytics & reports
 └── hcrm_backend/          # Django settings & middleware
@@ -136,6 +136,10 @@ python manage.py runserver
 
 Backend API will be available at `http://localhost:8000`
 
+After pulling updates, back up the database and run `python manage.py migrate` before starting the application. Existing patient and appointment IDs remain unchanged; newly generated IDs use a longer `PAT` or `APT` identifier. Registration now requires `user.password_confirm` in addition to `user.password`.
+
+For email reminders, configure `CELERY_BROKER_URL`, SMTP settings, and run `celery -A hcrm_backend worker --loglevel=info` alongside the application. Reminder dispatch currently logs broker failures; it does not guarantee delivery or retry failed scheduling. SMS is not available.
+
 ### Frontend Setup
 
 1. **Navigate to frontend directory**
@@ -167,12 +171,12 @@ Frontend will be available at `http://localhost:3000`
 - JWT-based authentication with refresh tokens
 - Role-Based Access Control (RBAC): Patient, Clinician, Admin
 - Token expiration: 24 hours (access), 7 days (refresh)
+- MFA enrollment and verification are not implemented. Accounts marked `mfa_enabled` cannot log in until that workflow is available.
 
 ### Data Encryption (HCRM-SR-001)
-- AES-256 encryption for all PHI (Protected Health Information)
-- Fernet symmetric encryption for medical records
+- Fernet symmetric encryption for selected clinical record fields and documents
 - Encrypted file storage for documents
-- TLS/SSL for data in transit
+- HTTPS is required for production; configure TLS at the deployment proxy
 
 ### Security Headers
 - X-Content-Type-Options: nosniff
@@ -181,9 +185,9 @@ Frontend will be available at `http://localhost:3000`
 - Strict-Transport-Security
 
 ### Audit Logging (HCRM-SR-004)
-- Immutable audit trail for all critical operations
-- Logs include: user, action, timestamp, IP address
-- Retention policy compliant with regulations
+- Database-backed audit events for implemented actions, including record history reads
+- Audit entries include user, action, timestamp, and an optional IP address
+- Database-level immutability and a retention policy are not yet implemented
 
 ## API Documentation
 
@@ -283,15 +287,14 @@ The project includes GitHub Actions workflow (`.github/workflows/ci-cd.yml`) tha
    - Runs performance benchmarks
    - Builds React frontend
 
-2. **Deploy** (on main branch)
-   - Executes deployment script
-   - Verifies deployment
+2. **Deployment**
+   - No deployment target is configured. The preparation script fails explicitly after its checks until a target is provided.
 
 ### Running CI/CD Locally
 ```bash
 # Backend tests
 python manage.py migrate
-pytest tests/ --disable-warnings
+pytest --disable-warnings
 
 # Performance tests
 pytest tests/performance/test_database_performance.py --benchmark-only
@@ -352,8 +355,8 @@ python manage.py migrate --noinput
 - **Authentication**: Custom User model with RBAC
 - **Appointments**: Schedule management, booking, conflict detection
 - **Electronic Records**: Encrypted PHI storage with Fernet
-- **Notifications**: Celery tasks for email/SMS reminders
-- **Audit Logs**: Immutable logging middleware
+- **Notifications**: Celery tasks for email reminders; SMS is not implemented
+- **Audit Logs**: Database-backed events; immutable retention is not implemented
 
 ### Frontend Modules
 - **Auth**: Login with JWT token management
