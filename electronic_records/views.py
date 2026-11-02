@@ -16,6 +16,7 @@ from audit_logs.utils import log_action
 from .models import PatientRecord      
 
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
 from .models import PatientDocument
 from .serializers import PatientDocumentSerializer, PatientDocumentUploadSerializer
 from .encryption import encrypt_file, decrypt_file
@@ -205,7 +206,7 @@ class PatientDocumentUploadView(generics.CreateAPIView):
         document_type = serializer.validated_data['document_type']
         
         # Get patient
-        patient = Patient.objects.get(user=request.user)
+        patient = get_object_or_404(Patient, user=request.user)
         
         # Read and encrypt file
         file_data = file.read()
@@ -245,8 +246,25 @@ class PatientDocumentListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        patient = Patient.objects.get(user=self.request.user)
+        patient = get_object_or_404(Patient, user=self.request.user)
         return PatientDocument.objects.filter(patient=patient)
+
+
+class PatientDocumentDownloadView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        document = get_object_or_404(PatientDocument, pk=pk, patient__user=request.user)
+        with document.file_encrypted.open('rb') as stored_file:
+            data = decrypt_file(stored_file.read())
+        log_action(user=request.user, action='DOCUMENT_DOWNLOADED',
+                   details=f'Document {document.pk} downloaded',
+                   ip_address=request.META.get('REMOTE_ADDR'))
+        response = HttpResponse(data, content_type='application/octet-stream')
+        from django.utils.http import content_disposition_header
+        response['Content-Disposition'] = content_disposition_header(True, document.original_filename)
+        response['X-Content-Type-Options'] = 'nosniff'
+        return response
     
 class PatientRecordSearchView(generics.ListAPIView):
     """

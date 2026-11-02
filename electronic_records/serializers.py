@@ -5,6 +5,7 @@ from electronic_records.models import PatientRecord, ClinicalNote
 # Use the real decrypt helper (make sure electronic_records/utils.py exists)
 from electronic_records.utils import decrypt_field as decrypt_field_maybe
 from .models import PatientDocument
+from django.core.validators import FileExtensionValidator
 
 
 class ClinicalNoteSerializer(serializers.ModelSerializer):
@@ -75,6 +76,7 @@ class PatientDocumentUploadSerializer(serializers.ModelSerializer):
         fields = ['document_type', 'file']
     
     def validate_file(self, value):
+        FileExtensionValidator(allowed_extensions=['pdf', 'jpg', 'jpeg', 'png'])(value)
         # Validate file size (max 10MB)
         max_size = 10 * 1024 * 1024
         if value.size > max_size:
