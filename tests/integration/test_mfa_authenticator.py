@@ -10,6 +10,15 @@ from electronic_records.encryption import encrypt
 
 
 @pytest.mark.django_db
+def test_user_without_mfa_can_sign_in_with_blank_optional_code():
+    user = User.objects.create_user(username='no-mfa-user', password='Password123!')
+    response = APIClient().post(reverse('token_obtain_pair'),
+                                {'username': user.username, 'password': 'Password123!', 'mfa_code': ''}, format='json')
+    assert response.status_code == 200
+    assert 'access' in response.data
+
+
+@pytest.mark.django_db
 def test_qr_enrollment_requires_password_and_verifies_code():
     user = User.objects.create_user(username='qr-user', password='Password123!')
     client = APIClient()

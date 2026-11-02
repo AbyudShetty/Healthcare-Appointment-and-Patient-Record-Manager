@@ -5,7 +5,7 @@ from authentication.mfa import consume_code
 
 
 class SafeTokenObtainPairSerializer(TokenObtainPairSerializer):
-    mfa_code = serializers.CharField(required=False, write_only=True, trim_whitespace=True)
+    mfa_code = serializers.CharField(required=False, allow_blank=True, write_only=True, trim_whitespace=True)
 
     @classmethod
     def get_token(cls, user):
