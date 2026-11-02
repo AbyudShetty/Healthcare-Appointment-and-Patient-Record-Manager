@@ -29,7 +29,10 @@ class PatientVolumeReportView(generics.ListCreateAPIView):
         
         # Get date from request or use today
         report_date_str = request.data.get('date', date.today().strftime('%Y-%m-%d'))
-        report_date = datetime.strptime(report_date_str, '%Y-%m-%d').date()
+        try:
+            report_date = datetime.strptime(report_date_str, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            return Response({'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Aggregate appointment data
         appointments = Appointment.objects.filter(appointment_date=report_date)

@@ -8,7 +8,7 @@ class ClinicianSearchSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'full_name', 'email']
+        fields = ['id', 'username', 'full_name', 'email', 'specialty']
 
 
 class ClinicianAvailabilitySerializer(serializers.ModelSerializer):

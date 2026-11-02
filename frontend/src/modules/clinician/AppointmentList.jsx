@@ -167,7 +167,6 @@ const AppointmentList = () => {
             value={newStatus}
             onChange={(e) => setNewStatus(e.target.value)}
           >
-            <MenuItem value="SCHEDULED">Scheduled</MenuItem>
             <MenuItem value="COMPLETED">Completed</MenuItem>
             <MenuItem value="CANCELLED">Cancelled</MenuItem>
             <MenuItem value="NO_SHOW">No Show</MenuItem>

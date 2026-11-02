@@ -45,6 +45,8 @@ class ClinicianSearchView(generics.ListAPIView):
                 Q(username__icontains=query)
             )
 
+        if specialty:
+            queryset = queryset.filter(specialty__icontains=specialty)
         return queryset
 
 class ClinicianAvailabilityView(generics.ListAPIView):
@@ -281,6 +283,8 @@ class AppointmentStatusUpdateView(generics.UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        if appointment.status != 'SCHEDULED' and appointment.status != new_status:
+            return Response({'error': 'A closed appointment cannot change status'}, status=status.HTTP_409_CONFLICT)
         appointment.status = new_status
         appointment.save()
         
