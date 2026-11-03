@@ -19,11 +19,11 @@ The HCRM System is a full-stack healthcare management platform that enables:
 ### Appointment System (HCRM-F-003 to F-007)
 - Clinician search and availability checking
 - Real-time appointment booking with conflict prevention
-- Automated email/SMS reminders (24 hours before appointments)
+- Email reminders scheduled 24 hours before appointments when the reminder worker is running
 - Clinician daily dashboard with patient schedules
 
 ### Electronic Patient Records (HCRM-F-008 to F-010)
-- AES-256 encrypted medical records
+- Fernet-encrypted clinical record fields
 - Clinical notes with audit trail
 - Quick record creation workflow
 - Secure patient history access
@@ -49,7 +49,7 @@ hcrm-project/
 ├── patients/               # Patient profiles
 ├── appointments/           # Appointment booking & schedules
 ├── electronic_records/     # EPR with encryption
-├── notifications/          # Email/SMS reminders (Celery)
+├── notifications/          # Durable email reminder jobs
 ├── audit_logs/            # Audit trail
 ├── reporting/             # Analytics & reports
 └── hcrm_backend/          # Django settings & middleware
@@ -76,7 +76,7 @@ frontend/
 - Python 3.11+
 - Node.js 18+
 - PostgreSQL 15+
-- Redis (for Celery)
+- A shared cache such as Redis for production HTTP throttling across processes
 
 ### Backend Setup
 
@@ -136,6 +136,10 @@ python manage.py runserver
 
 Backend API will be available at `http://localhost:8000`
 
+After pulling updates, back up the database and run `python manage.py migrate` before starting the application. Existing patient and appointment IDs remain unchanged; newly generated IDs use a longer `PAT` or `APT` identifier. Registration now requires `user.password_confirm` in addition to `user.password`.
+
+For email reminders, configure SMTP and run `python manage.py run_reminder_worker` as a supervised process alongside the application. Reminder jobs are stored in PostgreSQL and retried up to five times; administrators can inspect permanent failures at `GET /api/v1/admin/reminders/failed/`. The reschedule endpoint moves the pending reminder with the appointment. A crash after a mail server accepts a message, or a reschedule while delivery is in progress, may result in duplicate or stale delivery. SMTP acceptance is not proof of receipt. SMS is not available.
+
 ### Frontend Setup
 
 1. **Navigate to frontend directory**
@@ -167,12 +171,13 @@ Frontend will be available at `http://localhost:3000`
 - JWT-based authentication with refresh tokens
 - Role-Based Access Control (RBAC): Patient, Clinician, Admin
 - Token expiration: 24 hours (access), 7 days (refresh)
+- Enroll a TOTP authenticator in Security settings using a QR code and save the one-use recovery codes. Enabling or disabling MFA revokes existing API sessions. Django admin access is blocked for MFA-enabled users because its session login has no MFA challenge. Identity-verified administrator recovery is available through the `reset_mfa` management command; restrict shell/database access to trusted operators, independently verify identity, and record a non-sensitive case reference. The command records the supplied operator account; it does not independently authenticate the shell operator.
+- MFA code failures are limited per account in the database. HTTP login and enrollment throttles use Django's cache; set `CACHE_URL` to a shared Redis URL for enforcement across multiple application processes.
 
 ### Data Encryption (HCRM-SR-001)
-- AES-256 encryption for all PHI (Protected Health Information)
-- Fernet symmetric encryption for medical records
+- Fernet symmetric encryption for selected clinical record fields and documents
 - Encrypted file storage for documents
-- TLS/SSL for data in transit
+- HTTPS is required for production; configure TLS at the deployment proxy
 
 ### Security Headers
 - X-Content-Type-Options: nosniff
@@ -181,9 +186,10 @@ Frontend will be available at `http://localhost:3000`
 - Strict-Transport-Security
 
 ### Audit Logging (HCRM-SR-004)
-- Immutable audit trail for all critical operations
-- Logs include: user, action, timestamp, IP address
-- Retention policy compliant with regulations
+- Database-backed audit events for implemented actions, including record history reads
+- Audit entries include user, action, timestamp, and an optional IP address
+- For a non-owner, non-superuser application database role, `audit_logs/sql/restrict_app_role.sql` revokes audit updates and deletes. Apply it using a separate database administrator after migrations; the migration owner and administrator can still alter the table. Decide and enforce a retention period outside the application.
+- `AUDIT_EXPORT_HMAC_KEY` (at least 32 bytes) enables `python manage.py export_audit`; store its output and the key under separate control, and run `python manage.py verify_audit_export <path>` to check the signature. Independent immutable storage and retention administration must be configured by the operator. A signed export cannot prove that events never recorded were present.
 
 ## API Documentation
 
@@ -283,15 +289,14 @@ The project includes GitHub Actions workflow (`.github/workflows/ci-cd.yml`) tha
    - Runs performance benchmarks
    - Builds React frontend
 
-2. **Deploy** (on main branch)
-   - Executes deployment script
-   - Verifies deployment
+2. **Deployment**
+   - No deployment target is configured. The preparation script fails explicitly after its checks until a target is provided.
 
 ### Running CI/CD Locally
 ```bash
 # Backend tests
 python manage.py migrate
-pytest tests/ --disable-warnings
+pytest --disable-warnings
 
 # Performance tests
 pytest tests/performance/test_database_performance.py --benchmark-only
@@ -352,8 +357,8 @@ python manage.py migrate --noinput
 - **Authentication**: Custom User model with RBAC
 - **Appointments**: Schedule management, booking, conflict detection
 - **Electronic Records**: Encrypted PHI storage with Fernet
-- **Notifications**: Celery tasks for email/SMS reminders
-- **Audit Logs**: Immutable logging middleware
+- **Notifications**: Database-backed email reminder jobs; SMS is not implemented
+- **Audit Logs**: Database-backed events, optional restricted-role controls, and signed exports
 
 ### Frontend Modules
 - **Auth**: Login with JWT token management

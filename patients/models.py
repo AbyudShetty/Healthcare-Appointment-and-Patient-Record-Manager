@@ -1,18 +1,8 @@
-from django.db import models, transaction
+from django.db import models
+from uuid import uuid4
 
 def generate_patient_id():
-    from patients.models import Patient
-    last_patient = Patient.objects.order_by('-id').first()
-    if (
-        last_patient
-        and last_patient.patient_id
-        and last_patient.patient_id.startswith("PAT")
-        and last_patient.patient_id[3:].isdigit()
-    ):
-        new_id = int(last_patient.patient_id[3:]) + 1
-    else:
-        new_id = 1
-    return f"PAT{new_id:06d}"
+    return f"PAT{uuid4().hex[:17].upper()}"
 
 
 class Patient(models.Model):
@@ -32,18 +22,7 @@ class Patient(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.patient_id or self.patient_id.strip() == "":
-            with transaction.atomic():
-                last_patient = Patient.objects.select_for_update().order_by('-id').first()
-                if (
-                    last_patient
-                    and last_patient.patient_id
-                    and last_patient.patient_id.startswith("PAT")
-                    and last_patient.patient_id[3:].isdigit()
-                ):
-                    new_id = int(last_patient.patient_id[3:]) + 1
-                else:
-                    new_id = 1
-                self.patient_id = f"PAT{new_id:06d}"
+            self.patient_id = generate_patient_id()
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -15,8 +15,18 @@ class SecurityHeadersMiddleware:
         response['X-Content-Type-Options'] = 'nosniff'
         response['X-Frame-Options'] = 'DENY'
         response['X-XSS-Protection'] = '1; mode=block'
-        response['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
         return response
+
+
+class BlockMFAAdminSessionMiddleware:
+    """Django admin has no MFA challenge; deny its session access for MFA accounts."""
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path.startswith('/admin/') and request.user.is_authenticated and request.user.mfa_enabled:
+            return JsonResponse({'detail': 'Use the MFA-protected application; Django admin does not support MFA.'}, status=403)
+        return self.get_response(request)
 
 class SanitizeErrorMiddleware:
     """

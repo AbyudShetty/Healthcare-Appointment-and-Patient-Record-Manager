@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'hcrm_backend.middleware.BlockMFAAdminSessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
@@ -99,7 +100,7 @@ DATABASES = {
 # -------------------------------------------------------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'authentication.jwt.MFAJWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -126,9 +127,11 @@ SIMPLE_JWT = {
 # -------------------------------------------------------------
 # Security Headers
 # -------------------------------------------------------------
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=not DEBUG, cast=bool)
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
@@ -138,7 +141,12 @@ X_FRAME_OPTIONS = 'DENY'
 # -------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
+
+CACHE_URL = config('CACHE_URL', default='')
+if CACHE_URL:
+    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.redis.RedisCache', 'LOCATION': CACHE_URL}}
 
 # -------------------------------------------------------------
 # User Model
@@ -196,13 +204,20 @@ USE_TZ = True
 TIME_ZONE = 'Asia/Kolkata'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MY_FERNET_KEY = config("HCRM_ENCRYPTION_KEY", default=None)
+HCRM_ENCRYPTION_KEY = config("HCRM_ENCRYPTION_KEY", default="") or config("MY_FERNET_KEY", default="")
+MY_FERNET_KEY = HCRM_ENCRYPTION_KEY
 
-if MY_FERNET_KEY is None:
-    MY_FERNET_KEY = Fernet.generate_key().decode()
-
-HCRM_ENCRYPTION_KEY = config("HCRM_ENCRYPTION_KEY", default="")
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_TIMEZONE = TIME_ZONE
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
 
 import sys
 

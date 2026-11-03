@@ -14,19 +14,23 @@ import Reports from './modules/admin/Reports'
 import SystemLogs from './modules/admin/SystemLogs'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Layout from './components/Layout'
+import MFASettings from './modules/auth/MFASettings'
 
 function App() {
-  const { isAuthenticated } = useSelector((state) => state.auth)
+  const { isAuthenticated, restoring, user } = useSelector((state) => state.auth)
+  const dashboard = user?.role === 'ADMIN' ? '/admin/dashboard' : user?.role === 'CLINICIAN' ? '/clinician/dashboard' : '/dashboard'
+  if (restoring) return <div>Loading session...</div>
 
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
       <Routes>
         <Route path="/login" element={
-          isAuthenticated ? <Navigate to="/dashboard" /> : <Login />
+          isAuthenticated ? <Navigate to={dashboard} /> : <Login />
         } />
         
         <Route path="/" element={<ProtectedRoute />}>
           <Route element={<Layout />}>
+            <Route path="settings/security" element={<MFASettings />} />
             {/* Patient Routes */}
             <Route path="dashboard" element={<PatientDashboard />} />
             <Route path="records" element={<PatientRecords />} />

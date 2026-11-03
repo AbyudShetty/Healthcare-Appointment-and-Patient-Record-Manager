@@ -2,13 +2,18 @@ from rest_framework import serializers
 from authentication.models import User
 from appointments.models import ClinicianSchedule, Appointment
 
+
+class AppointmentRescheduleSerializer(serializers.Serializer):
+    appointment_date = serializers.DateField()
+    appointment_time = serializers.TimeField()
+
 class ClinicianSearchSerializer(serializers.ModelSerializer):
     """Serializer for clinician search results"""
     full_name = serializers.CharField(source='get_full_name', read_only=True)
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'full_name', 'email']
+        fields = ['id', 'username', 'full_name', 'email', 'specialty']
 
 
 class ClinicianAvailabilitySerializer(serializers.ModelSerializer):

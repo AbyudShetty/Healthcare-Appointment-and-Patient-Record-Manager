@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
+from django.db import transaction
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from appointments.models import Appointment, ClinicianSchedule
 from authentication.models import User
@@ -12,8 +14,10 @@ from appointments.serializers import (
     AppointmentSerializer,
     ClinicianDashboardSerializer
 )
+from appointments.serializers import AppointmentRescheduleSerializer
 from datetime import datetime
 from datetime import date
+from datetime import timedelta
 from patients   .models import Patient
 
 
@@ -42,6 +46,8 @@ class ClinicianSearchView(generics.ListAPIView):
                 Q(username__icontains=query)
             )
 
+        if specialty:
+            queryset = queryset.filter(specialty__icontains=specialty)
         return queryset
 
 class ClinicianAvailabilityView(generics.ListAPIView):
@@ -81,18 +87,20 @@ class ClinicianAvailabilityView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
 
-        booked_slots = set(
+        booked_slots = list(
             Appointment.objects.filter(
                 clinician_id=clinician_id,
                 appointment_date=date_obj,
                 status__iexact='SCHEDULED'
-            ).values_list('appointment_time', flat=True)
+            ).values_list('appointment_time', 'duration_minutes')
         )
 
         available_slots = []
         for slot in serializer.data:
-            slot_time = datetime.strptime(slot['start_time'], "%H:%M:%S").time()
-            if slot_time not in booked_slots:
+            slot_start = datetime.combine(date_obj, datetime.strptime(slot['start_time'], "%H:%M:%S").time())
+            slot_end = datetime.combine(date_obj, datetime.strptime(slot['end_time'], "%H:%M:%S").time())
+            if not any(slot_start < datetime.combine(date_obj, t) + timedelta(minutes=d)
+                       and datetime.combine(date_obj, t) < slot_end for t, d in booked_slots):
                 available_slots.append(slot)
 
         return Response(available_slots)
@@ -109,50 +117,92 @@ class AppointmentBookingView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        if request.user.role != 'PATIENT' or serializer.validated_data['patient'].user_id != request.user.id:
+            return Response({'error': 'Patients may only book their own appointments'}, status=status.HTTP_403_FORBIDDEN)
+        if serializer.validated_data['clinician'].role != 'CLINICIAN':
+            return Response({'error': 'Selected user is not a clinician'}, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.validated_data.get('status', 'SCHEDULED') != 'SCHEDULED':
+            return Response({'error': 'New appointments must be scheduled'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Check if slot is still available
         clinician_id = serializer.validated_data['clinician'].id
         appointment_date = serializer.validated_data['appointment_date']
         appointment_time = serializer.validated_data['appointment_time']
         
-        # Check for conflicts
-        conflict = Appointment.objects.filter(
-            clinician_id=clinician_id,
-            appointment_date=appointment_date,
-            appointment_time=appointment_time,
-            status='SCHEDULED'
-        ).exists()
-        
-        if conflict:
-            return Response(
-                {'error': 'This time slot is no longer available'},
-                status=status.HTTP_409_CONFLICT
-            )
-        
-        # Create appointment
-        appointment = serializer.save()
-        
-        # Log action
-        from audit_logs.utils import log_action
-        log_action(
-            user=request.user,
-            action='APPOINTMENT_BOOKED',
-            details=f"Appointment {appointment.appointment_id} booked"
-        )
-        
-        # Trigger reminder notification (async task)
-        from notifications.tasks import schedule_appointment_reminder
-        try:
-            from django.conf import settings
-            if getattr(settings, "CELERY_TASK_ALWAYS_EAGER", False):
-                schedule_appointment_reminder(appointment.id)
-            else:
-                schedule_appointment_reminder.delay(appointment.id)
-        except Exception as e:
-            print(f"[⚠️ Celery skipped in test mode] {e}")
+        duration = serializer.validated_data.get('duration_minutes', 30)
+        start = datetime.combine(appointment_date, appointment_time)
+        end = start + timedelta(minutes=duration)
+        if duration <= 0 or end.date() != appointment_date or timezone.make_aware(start) <= timezone.now():
+            return Response({'error': 'Choose a future time and a valid duration'}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            # Serialize all booking requests for a clinician, including overlapping slots.
+            User.objects.select_for_update().get(pk=clinician_id)
+            schedule = ClinicianSchedule.objects.filter(
+                clinician_id=clinician_id, date=appointment_date,
+                start_time=appointment_time, is_available=True,
+            ).first()
+            if not schedule or end.time() > schedule.end_time:
+                return Response({'error': 'Choose an available schedule slot'}, status=status.HTTP_400_BAD_REQUEST)
+            existing = Appointment.objects.filter(
+                clinician_id=clinician_id, appointment_date=appointment_date, status='SCHEDULED'
+            ).values_list('appointment_time', 'duration_minutes')
+            if any(start < datetime.combine(appointment_date, t) + timedelta(minutes=d)
+                   and datetime.combine(appointment_date, t) < end for t, d in existing):
+                return Response({'error': 'This time slot is no longer available'}, status=status.HTTP_409_CONFLICT)
+            appointment = serializer.save()
+            from notifications.models import ReminderJob
+            reminder_at = timezone.make_aware(datetime.combine(appointment.appointment_date, appointment.appointment_time)) - timedelta(hours=24)
+            ReminderJob.objects.create(appointment=appointment, due_at=max(reminder_at, timezone.now()))
+            from audit_logs.utils import log_action
+            log_action(user=request.user, action='APPOINTMENT_BOOKED',
+                       details=f"Appointment {appointment.appointment_id} booked")
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
+
+class AppointmentRescheduleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, appointment_id):
+        serializer = AppointmentRescheduleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        appointment = get_object_or_404(Appointment, appointment_id=appointment_id)
+        if request.user.role != 'ADMIN' and (request.user.role != 'PATIENT' or appointment.patient.user_id != request.user.id):
+            return Response({'error': 'You cannot reschedule this appointment'}, status=status.HTTP_403_FORBIDDEN)
+        day = serializer.validated_data['appointment_date']
+        start_time = serializer.validated_data['appointment_time']
+        start = datetime.combine(day, start_time)
+        end = start + timedelta(minutes=appointment.duration_minutes)
+        if appointment.duration_minutes <= 0 or end.date() != day or timezone.make_aware(start) <= timezone.now():
+            return Response({'error': 'Choose a future time'}, status=status.HTTP_400_BAD_REQUEST)
+        with transaction.atomic():
+            User.objects.select_for_update().get(pk=appointment.clinician_id)
+            appointment = Appointment.objects.select_for_update().get(pk=appointment.pk)
+            if appointment.status != 'SCHEDULED':
+                return Response({'error': 'Only scheduled appointments can be moved'}, status=status.HTTP_409_CONFLICT)
+            schedule = ClinicianSchedule.objects.filter(clinician_id=appointment.clinician_id, date=day,
+                                                         start_time=start_time, is_available=True).first()
+            if not schedule or end.time() > schedule.end_time:
+                return Response({'error': 'Choose an available schedule slot'}, status=status.HTTP_400_BAD_REQUEST)
+            existing = Appointment.objects.filter(clinician_id=appointment.clinician_id, appointment_date=day,
+                                                   status='SCHEDULED').exclude(pk=appointment.pk).values_list('appointment_time', 'duration_minutes')
+            if any(start < datetime.combine(day, t) + timedelta(minutes=d) and datetime.combine(day, t) < end for t, d in existing):
+                return Response({'error': 'This time slot is no longer available'}, status=status.HTTP_409_CONFLICT)
+            appointment.appointment_date = day
+            appointment.appointment_time = start_time
+            appointment.save(update_fields=['appointment_date', 'appointment_time', 'updated_at'])
+            from notifications.models import ReminderJob
+            reminder_at = timezone.make_aware(start) - timedelta(hours=24)
+            ReminderJob.objects.update_or_create(appointment=appointment, defaults={
+                'due_at': max(reminder_at, timezone.now()), 'state': 'PENDING', 'attempts': 0,
+                'locked_until': None, 'claim_token': '', 'last_error': '', 'sent_at': None, 'updated_at': timezone.now(),
+            })
+            from audit_logs.utils import log_action
+            log_action(user=request.user, action='APPOINTMENT_RESCHEDULED',
+                       details=f'Appointment {appointment.appointment_id} rescheduled')
+        return Response(AppointmentSerializer(appointment).data)
+
 
 class ClinicianDashboardView(APIView):
     """
@@ -255,6 +305,8 @@ class AppointmentStatusUpdateView(generics.UpdateAPIView):
             )
         
         appointment = self.get_object()
+        if request.user.role == 'CLINICIAN' and appointment.clinician_id != request.user.id:
+            return Response({'error': 'You may only update your own appointments'}, status=status.HTTP_403_FORBIDDEN)
         new_status = request.data.get('status')
         
         # Validate the new status is one of the allowed choices
@@ -264,16 +316,17 @@ class AppointmentStatusUpdateView(generics.UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        appointment.status = new_status
-        appointment.save()
-        
-        # Log this action to the audit trail
-        from audit_logs.utils import log_action
-        log_action(
-            user=request.user,
-            action='APPOINTMENT_STATUS_UPDATED',
-            details=f"Appointment {appointment.appointment_id} marked as {new_status}"
-        )
+        with transaction.atomic():
+            appointment = Appointment.objects.select_for_update().get(pk=appointment.pk)
+            if appointment.status != 'SCHEDULED' and appointment.status != new_status:
+                return Response({'error': 'A closed appointment cannot change status'}, status=status.HTTP_409_CONFLICT)
+            appointment.status = new_status
+            appointment.save()
+            from notifications.models import ReminderJob
+            ReminderJob.objects.filter(appointment=appointment, state='PENDING').update(state='CANCELLED', updated_at=timezone.now())
+            from audit_logs.utils import log_action
+            log_action(user=request.user, action='APPOINTMENT_STATUS_UPDATED',
+                       details=f"Appointment {appointment.appointment_id} marked as {new_status}")
         
         serializer = self.get_serializer(appointment)
         return Response(serializer.data)     

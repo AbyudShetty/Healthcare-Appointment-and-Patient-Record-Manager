@@ -14,7 +14,7 @@ import {
 import { login, clearError } from '../../store/slices/authSlice'
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ username: '', password: '' })
+  const [credentials, setCredentials] = useState({ username: '', password: '', mfa_code: '' })
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { loading, error } = useSelector((state) => state.auth)
@@ -27,7 +27,8 @@ const Login = () => {
     e.preventDefault()
     const result = await dispatch(login(credentials))
     if (login.fulfilled.match(result)) {
-      navigate('/dashboard')
+      const role = result.payload.user.role
+      navigate(role === 'ADMIN' ? '/admin/dashboard' : role === 'CLINICIAN' ? '/clinician/dashboard' : '/dashboard')
     }
   }
 
@@ -77,6 +78,8 @@ const Login = () => {
               value={credentials.password}
               onChange={handleChange}
             />
+            <TextField margin="normal" fullWidth name="mfa_code" label="Authenticator or recovery code (if enabled)"
+              value={credentials.mfa_code} onChange={handleChange} autoComplete="one-time-code" />
             <Button
               type="submit"
               fullWidth

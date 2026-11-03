@@ -1,11 +1,11 @@
 import pytest
 import time
-from datetime import date, time as dtime
+from datetime import date, time as dtime, timedelta
 from django.urls import reverse
 from rest_framework.test import APIClient
 from authentication.models import User
 from patients.models import Patient
-from appointments.models import Appointment
+from appointments.models import Appointment, ClinicianSchedule
 from unittest.mock import patch
 
 
@@ -32,14 +32,18 @@ class TestAppointmentBookingView:
         self.patient = Patient.objects.create(user=self.patient_user)
         self.client.force_authenticate(user=self.patient_user)
         self.url = reverse("appointment-book")
+        self.day = date.today() + timedelta(days=1)
+        for hour in (10, 11):
+            ClinicianSchedule.objects.create(clinician=self.clinician, date=self.day,
+                                             start_time=dtime(hour), end_time=dtime(hour, 30))
 
-    @patch("notifications.tasks.schedule_appointment_reminder.delay", lambda x: None)
+    @patch("notifications.tasks.schedule_appointment_reminder.apply_async", lambda **kwargs: None)
     def test_successful_appointment_booking(self):
         """HCRM-F-005: Patient can book an available slot successfully."""
         payload = {
             "patient": self.patient.id,
             "clinician": self.clinician.id,
-            "appointment_date": date.today().strftime("%Y-%m-%d"),
+            "appointment_date": self.day.strftime("%Y-%m-%d"),
             "appointment_time": dtime(10, 0).strftime("%H:%M:%S"),
             "reason_for_visit": "General check-up",
         }
@@ -59,7 +63,7 @@ class TestAppointmentBookingView:
         Appointment.objects.create(
             patient=self.patient,
             clinician=self.clinician,
-            appointment_date=date.today(),
+            appointment_date=self.day,
             appointment_time=dtime(11, 0),
             status="SCHEDULED",
         )
@@ -67,7 +71,7 @@ class TestAppointmentBookingView:
         payload = {
             "patient": self.patient.id,
             "clinician": self.clinician.id,
-            "appointment_date": date.today().strftime("%Y-%m-%d"),
+            "appointment_date": self.day.strftime("%Y-%m-%d"),
             "appointment_time": dtime(11, 0).strftime("%H:%M:%S"),
             "reason_for_visit": "Conflict test",
         }

@@ -69,8 +69,8 @@ jobs:
       - name: Run backend tests
         run: |
           if [ -d "tests" ]; then
-            echo "Running main test suite..."
-            pytest tests/ --disable-warnings --maxfail=3
+            echo "Running test suite..."
+            pytest --disable-warnings --maxfail=3
           else
             echo "No test directory found, skipping..."
           fi
@@ -130,18 +130,3 @@ jobs:
             echo "No linting configured, skipping..."
           fi
 
-  # --- Deployment job ---
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Deploy using script
-        run: bash ci_cd/deployment_script.sh
-
-      - name: Verify deployment
-        run: echo "Deployment verification complete."

@@ -27,7 +27,7 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !originalRequest.url?.includes('/auth/login/')) {
       originalRequest._retry = true
 
       try {
@@ -36,8 +36,9 @@ axiosInstance.interceptors.response.use(
           refresh: refreshToken,
         })
 
-        const { access } = response.data
+        const { access, refresh } = response.data
         localStorage.setItem('accessToken', access)
+        if (refresh) localStorage.setItem('refreshToken', refresh)
 
         originalRequest.headers.Authorization = `Bearer ${access}`
         return axiosInstance(originalRequest)

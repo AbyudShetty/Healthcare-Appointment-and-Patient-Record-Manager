@@ -7,7 +7,11 @@ django-cors-headers==4.3.0
 python-decouple==3.8
 celery==5.3.4
 redis==5.0.1
-cryptography==41.0.7
+cryptography==44.0.3
+# SimpleJWT 5.3 imports pkg_resources, removed in setuptools 81.
+setuptools>=65.5.1,<81
+pyotp==2.10.0
+qrcode==8.2
 
 # Testing
 pytest==8.3.3

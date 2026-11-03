@@ -9,7 +9,7 @@ from patients.models import Patient
 class TestAppointmentModelUnit:
 
     def test_appointment_id_autogenerates(self):
-        """Unit: Appointment ID should auto-generate as APT000001, APT000002…"""
+        """Appointment IDs use the APT prefix and fit the database field."""
 
         user = User.objects.create_user(username="doc", password="x", role="CLINICIAN")
         patient_user = User.objects.create_user(username="pat", password="x", role="PATIENT")
@@ -23,7 +23,7 @@ class TestAppointmentModelUnit:
         )
 
         assert appt.appointment_id.startswith("APT")
-        assert len(appt.appointment_id) == 9  # APT + 6 digits
+        assert len(appt.appointment_id) == 20
 
     def test_appointment_string_representation(self):
         """Unit: __str__ returns readable appointment info"""

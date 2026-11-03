@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from '../../api/axios'
+import { fetchAllPages } from '../../api/pagination'
 
 export const fetchRecords = createAsyncThunk(
   'records/fetchAll',
   async (patientId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/records/${patientId}/history/`)
-      return response.data
+      return await fetchAllPages(`/records/${patientId}/history/`)
     } catch (error) {
       return rejectWithValue(error.response?.data)
     }

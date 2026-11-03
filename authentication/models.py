@@ -13,10 +13,15 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='PATIENT')
     phone_number = models.CharField(max_length=15, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    specialty = models.CharField(max_length=100, blank=True)
     mfa_enabled = models.BooleanField(default=False)
+    auth_version = models.PositiveIntegerField(default=0)
     
     class Meta:
         db_table = 'auth_users'
         
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+
+from .mfa_models import MFADevice  # noqa: E402,F401

@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/v1/appointments/', include('appointments.urls')),
     path('api/v1/records/', include('electronic_records.urls')),
     path('api/v1/reports/', include('reporting.urls')),
+    path('api/v1/admin/reminders/', include('notifications.urls')),
     path('api/v1/admin/users/', include('authentication.admin_urls')),
     path('api/v1/admin/logs/', include('audit_logs.urls')), 
 ]

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Box,
@@ -11,6 +11,7 @@ import {
 } from '@mui/material'
 import axiosInstance from '../../api/axios'
 import { formatDate } from '../../utils/formatDate'
+import { fetchAllPages } from '../../api/pagination'
 
 const PatientNotes = () => {
   const { patientId } = useParams()
@@ -18,21 +19,19 @@ const PatientNotes = () => {
   const [newNote, setNewNote] = useState('')
   const [selectedRecordId, setSelectedRecordId] = useState(null)
 
-  useEffect(() => {
-    fetchPatientRecords()
-  }, [patientId])
-
-  const fetchPatientRecords = async () => {
+  const fetchPatientRecords = useCallback(async () => {
     try {
-      const response = await axiosInstance.get(`/records/${patientId}/history/`)
-      setRecords(response.data)
-      if (response.data.length > 0) {
-        setSelectedRecordId(response.data[0].id)
-      }
+      const items = await fetchAllPages(`/records/${patientId}/history/`)
+      setRecords(items)
+      setSelectedRecordId(items[0]?.id ?? null)
     } catch (error) {
       console.error('Failed to fetch records:', error)
     }
-  }
+  }, [patientId])
+
+  useEffect(() => {
+    fetchPatientRecords()
+  }, [fetchPatientRecords])
 
   const handleAddNote = async () => {
     if (!newNote.trim() || !selectedRecordId) return

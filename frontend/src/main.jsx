@@ -7,6 +7,9 @@ import CssBaseline from '@mui/material/CssBaseline'
 import App from './App.jsx'
 import store from './store/store.js'
 import theme from './theme.js'
+import { restoreSession } from './store/slices/authSlice.js'
+
+store.dispatch(restoreSession())
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

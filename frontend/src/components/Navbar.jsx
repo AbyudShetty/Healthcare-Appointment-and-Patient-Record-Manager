@@ -51,7 +51,7 @@ const Navbar = () => {
           onClose={handleClose}
         >
           <MenuItem onClick={handleClose}>Profile</MenuItem>
-          <MenuItem onClick={handleClose}>Settings</MenuItem>
+          <MenuItem onClick={() => { handleClose(); navigate('/settings/security') }}>Security settings</MenuItem>
           <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
       </Toolbar>

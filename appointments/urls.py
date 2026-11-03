@@ -10,6 +10,7 @@ from .views import (
     AppointmentStatusUpdateView,
     AppointmentListView  
 )
+from .views import AppointmentRescheduleView
 
 urlpatterns = [
     path('health/', AppointmentHealthCheckView.as_view(), name='appointments-health'),
@@ -21,4 +22,5 @@ urlpatterns = [
     path('schedule/', ClinicianScheduleManagementView.as_view(), name='admin-schedule-manage'),
     path('schedule/<int:pk>/', ClinicianScheduleDeleteView.as_view(), name='admin-schedule-delete'),
     path('status/<str:appointment_id>/', AppointmentStatusUpdateView.as_view(), name='appointment-status-update'),
+    path('reschedule/<str:appointment_id>/', AppointmentRescheduleView.as_view(), name='appointment-reschedule'),
 ]

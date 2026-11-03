@@ -3,40 +3,33 @@ import axiosInstance from '../../api/axios'
 
 export const login = createAsyncThunk(
   'auth/login',
-  async ({ username, password }, { rejectWithValue }) => {
+  async ({ username, password, mfa_code }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post('/auth/login/', {
         username,
         password,
+        mfa_code,
       })
       
       const { access, refresh } = response.data
       localStorage.setItem('accessToken', access)
       localStorage.setItem('refreshToken', refresh)
 
-      // Get user profile with error handling
-      try {
-        const profileResponse = await axiosInstance.get('/patients/profile/')
-        
-        // For patient users, also get the patient record ID
-        let userData = profileResponse.data
-        
-        // If patient_id is in the response, we're good
-        // Otherwise fetch additional info if needed
-        return { user: userData, tokens: { access, refresh } }
-      } catch (profileError) {
-        // If profile fetch fails, try to decode token or use basic info
-        console.error('Profile fetch failed:', profileError)
-        return { 
-          user: { username, role: 'PATIENT' }, 
-          tokens: { access, refresh } 
-        }
-      }
+      const profileResponse = await axiosInstance.get('/patients/profile/')
+      return { user: profileResponse.data }
     } catch (error) {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
       return rejectWithValue(error.response?.data || 'Login failed')
     }
   }
 )
+
+export const restoreSession = createAsyncThunk('auth/restore', async () => {
+  if (!localStorage.getItem('accessToken')) return null
+  const response = await axiosInstance.get('/patients/profile/')
+  return response.data
+})
 
 export const logout = createAsyncThunk('auth/logout', async () => {
   localStorage.removeItem('accessToken')
@@ -49,6 +42,7 @@ const authSlice = createSlice({
     user: null,
     isAuthenticated: false,
     loading: false,
+    restoring: true,
     error: null,
   },
   reducers: {
@@ -58,6 +52,16 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(restoreSession.fulfilled, (state, action) => {
+        state.restoring = false
+        state.user = action.payload
+        state.isAuthenticated = Boolean(action.payload)
+      })
+      .addCase(restoreSession.rejected, (state) => {
+        state.restoring = false
+        state.user = null
+        state.isAuthenticated = false
+      })
       .addCase(login.pending, (state) => {
         state.loading = true
         state.error = null

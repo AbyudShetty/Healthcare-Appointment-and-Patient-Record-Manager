@@ -19,6 +19,7 @@ import {
 import { Add } from '@mui/icons-material'
 import { fetchAppointments, bookAppointment, searchClinicians } from '../../store/slices/appointmentSlice'
 import { formatDate } from '../../utils/formatDate'
+import axiosInstance from '../../api/axios'
 
 const PatientAppointments = () => {
   const dispatch = useDispatch()
@@ -26,6 +27,8 @@ const PatientAppointments = () => {
   const { user } = useSelector((state) => state.auth)
 
   const [open, setOpen] = useState(false)
+  const [slots, setSlots] = useState([])
+  const [slotsError, setSlotsError] = useState('')
   const [formData, setFormData] = useState({
     clinician: '',
     appointment_date: '',
@@ -36,6 +39,17 @@ const PatientAppointments = () => {
   useEffect(() => {
     dispatch(fetchAppointments())
   }, [dispatch])
+
+  useEffect(() => {
+    let active = true
+    setSlots([])
+    setSlotsError('')
+    if (!formData.clinician || !formData.appointment_date) return () => { active = false }
+    axiosInstance.get(`/appointments/availability/${formData.clinician}/`, { params: { date: formData.appointment_date } })
+      .then(({ data }) => { if (active) setSlots(Array.isArray(data) ? data : []) })
+      .catch(() => { if (active) setSlotsError('Could not load available times.') })
+    return () => { active = false }
+  }, [formData.clinician, formData.appointment_date])
 
   const handleOpen = () => {
     dispatch(searchClinicians(''))
@@ -53,7 +67,8 @@ const PatientAppointments = () => {
   }
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    setFormData({ ...formData, [e.target.name]: e.target.value,
+      ...(['clinician', 'appointment_date'].includes(e.target.name) ? { appointment_time: '' } : {}) })
   }
 
   const handleSubmit = async () => {
@@ -190,15 +205,19 @@ const PatientAppointments = () => {
           />
 
           <TextField
+            select
             fullWidth
             margin="normal"
-            label="Appointment Time"
+            label="Available Time"
             name="appointment_time"
-            type="time"
             value={formData.appointment_time}
             onChange={handleChange}
-            InputLabelProps={{ shrink: true }}
-          />
+            SelectProps={{ native: true }}
+          >
+            <option value="">Choose an available time</option>
+            {slots.map((slot) => <option key={slot.id} value={slot.start_time}>{slot.start_time} – {slot.end_time}</option>)}
+          </TextField>
+          {slotsError && <Alert severity="error">{slotsError}</Alert>}
 
           <TextField
             fullWidth

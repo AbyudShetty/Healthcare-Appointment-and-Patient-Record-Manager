@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 # SimpleJWT auth so "Authorization: Bearer <access_token>" is honored
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from authentication.jwt import MFAJWTAuthentication
 
 from patients.models import Patient
 from electronic_records.models import PatientRecord, ClinicalNote
@@ -16,6 +16,7 @@ from audit_logs.utils import log_action
 from .models import PatientRecord      
 
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
 from .models import PatientDocument
 from .serializers import PatientDocumentSerializer, PatientDocumentUploadSerializer
 from .encryption import encrypt_file, decrypt_file
@@ -48,7 +49,7 @@ class SecureHistoryView(generics.ListAPIView):
     serializer_class = PatientRecordSerializer
 
     # Ensure view uses SimpleJWT to interpret Authorization header
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [MFAJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -78,6 +79,9 @@ class SecureHistoryView(generics.ListAPIView):
             if getattr(request.user, "role", None) == "PATIENT":
                 # patient must be linked to a user object
                 if not hasattr(patient, "user") or patient.user != request.user:
+                    log_action(user=request.user, action='RECORD_HISTORY_DENIED',
+                               details=f'Patient {patient.patient_id} history denied',
+                               ip_address=request.META.get('REMOTE_ADDR'))
                     return Response(
                         {"detail": "Not allowed to view other patients' records."},
                         status=status.HTTP_403_FORBIDDEN,
@@ -87,8 +91,14 @@ class SecureHistoryView(generics.ListAPIView):
                 allowed = False
 
         if not allowed:
+            log_action(user=request.user, action='RECORD_HISTORY_DENIED',
+                       details=f'Patient {patient.patient_id} history denied',
+                       ip_address=request.META.get('REMOTE_ADDR'))
             return Response({"detail": "Not authorized."}, status=status.HTTP_403_FORBIDDEN)
 
+        log_action(user=request.user, action='RECORD_HISTORY_VIEWED',
+                   details=f'Patient {patient.patient_id} history viewed',
+                   ip_address=request.META.get('REMOTE_ADDR'))
         # If authorized, return serialized records (ListAPIView handles pagination)
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -128,9 +138,9 @@ class QuickRecordCreateView(generics.CreateAPIView):
         record = PatientRecord.objects.create(
             patient=patient,
             created_by=request.user,
-            medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')),
-            diagnoses_encrypted=encrypt_field(request.data.get('diagnoses', '')),
-            medications_encrypted=encrypt_field(request.data.get('medications', ''))
+            medical_history_encrypted=encrypt_field(request.data.get('medical_history', '')).decode() if request.data.get('medical_history') else '',
+            diagnoses_encrypted=encrypt_field(request.data.get('diagnoses', '')).decode() if request.data.get('diagnoses') else '',
+            medications_encrypted=encrypt_field(request.data.get('medications', '')).decode() if request.data.get('medications') else ''
         )
 
         # Log action
@@ -202,7 +212,7 @@ class PatientDocumentUploadView(generics.CreateAPIView):
         document_type = serializer.validated_data['document_type']
         
         # Get patient
-        patient = Patient.objects.get(user=request.user)
+        patient = get_object_or_404(Patient, user=request.user)
         
         # Read and encrypt file
         file_data = file.read()
@@ -228,7 +238,7 @@ class PatientDocumentUploadView(generics.CreateAPIView):
         log_action(
             user=request.user,
             action='DOCUMENT_UPLOADED',
-            details=f"Document {file.name} uploaded for patient {patient.patient_id}"
+            details=f"Document {document.pk} uploaded for patient {patient.patient_id}"
         )
         
         return Response(
@@ -240,10 +250,32 @@ class PatientDocumentListView(generics.ListAPIView):
     """List patient's documents"""
     serializer_class = PatientDocumentSerializer
     permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        log_action(user=request.user, action='DOCUMENT_LIST_VIEWED', details='Patient documents listed',
+                   ip_address=request.META.get('REMOTE_ADDR'))
+        return super().list(request, *args, **kwargs)
     
     def get_queryset(self):
-        patient = Patient.objects.get(user=self.request.user)
+        patient = get_object_or_404(Patient, user=self.request.user)
         return PatientDocument.objects.filter(patient=patient)
+
+
+class PatientDocumentDownloadView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        document = get_object_or_404(PatientDocument, pk=pk, patient__user=request.user)
+        with document.file_encrypted.open('rb') as stored_file:
+            data = decrypt_file(stored_file.read())
+        log_action(user=request.user, action='DOCUMENT_DOWNLOADED',
+                   details=f'Document {document.pk} downloaded',
+                   ip_address=request.META.get('REMOTE_ADDR'))
+        response = HttpResponse(data, content_type='application/octet-stream')
+        from django.utils.http import content_disposition_header
+        response['Content-Disposition'] = content_disposition_header(True, document.original_filename)
+        response['X-Content-Type-Options'] = 'nosniff'
+        return response
     
 class PatientRecordSearchView(generics.ListAPIView):
     """
@@ -252,6 +284,12 @@ class PatientRecordSearchView(generics.ListAPIView):
     """
     serializer_class = PatientRecordSerializer
     permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        action = 'RECORD_SEARCHED' if request.user.role in ['CLINICIAN', 'ADMIN'] else 'RECORD_SEARCH_DENIED'
+        log_action(user=request.user, action=action, details='Patient record search requested',
+                   ip_address=request.META.get('REMOTE_ADDR'))
+        return super().list(request, *args, **kwargs)
     
     def get_queryset(self):
         if self.request.user.role not in ['CLINICIAN', 'ADMIN']:

@@ -50,7 +50,7 @@ class EncryptionUtilsTests(SimpleTestCase):
 
     def test_environment_key_present(self):
         """Ensure encryption key is present or warn if missing."""
-        key = os.environ.get("MY_FERNET_KEY")
+        key = os.environ.get("HCRM_ENCRYPTION_KEY") or os.environ.get("MY_FERNET_KEY")
         self.assertIsNotNone(key, "MY_FERNET_KEY must be set for encryption")
 
     def test_encrypt_and_decrypt_consistency(self):

@@ -23,6 +23,7 @@ import {
   Alert,
 } from '@mui/material'
 import axiosInstance from '../../api/axios'
+import { fetchAllPages } from '../../api/pagination'
 
 const AppointmentList = () => {
   const [appointments, setAppointments] = useState([])
@@ -39,9 +40,7 @@ const AppointmentList = () => {
   const fetchAppointments = async () => {
     try {
       setLoading(true)
-      const response = await axiosInstance.get('/appointments/')
-      // Handle both array and object responses
-      const data = Array.isArray(response.data) ? response.data : response.data.results || []
+      const data = await fetchAllPages('/appointments/')
       setAppointments(data)
       setError(null)
     } catch (error) {
@@ -167,7 +166,6 @@ const AppointmentList = () => {
             value={newStatus}
             onChange={(e) => setNewStatus(e.target.value)}
           >
-            <MenuItem value="SCHEDULED">Scheduled</MenuItem>
             <MenuItem value="COMPLETED">Completed</MenuItem>
             <MenuItem value="CANCELLED">Cancelled</MenuItem>
             <MenuItem value="NO_SHOW">No Show</MenuItem>

@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .serializers import PatientProfileSerializer
+from .serializers import PatientProfileSerializer, PatientAccountRegistrationSerializer
 from .models import Patient
 from authentication.models import User
 from audit_logs.utils import log_action
@@ -12,28 +12,15 @@ class PatientRegistrationView(generics.CreateAPIView):
     Register a new patient (HCRM-F-001)
     AC-F-001: Patient account and profile creation
     """
-    serializer_class = PatientProfileSerializer
+    serializer_class = PatientAccountRegistrationSerializer
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        # Create a user and link to a new patient profile
-        user_data = self.request.data.get("user", {})
-        username = user_data.get("username")
-        email = user_data.get("email")
-        password = user_data.get("password")
-
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            role="PATIENT"
-        )
-
-        patient = serializer.save(user=user)
+        patient = serializer.save()
 
         # Log action
         log_action(
-            user=user,
+            user=patient.user,
             action="PATIENT_REGISTERED",
             details=f"Patient {patient.patient_id} registered"
         )
@@ -62,11 +49,14 @@ class PatientProfileUpdateView(generics.RetrieveUpdateAPIView):
         patient = self.get_object()
         
         if patient:
+            log_action(user=request.user, action='PROFILE_VIEWED', details=f'Patient {patient.patient_id} profile viewed',
+                       ip_address=request.META.get('REMOTE_ADDR'))
             serializer = self.get_serializer(patient)
             data = serializer.data
             # Add user ID for appointment booking
             data['id'] = patient.id  # This is the Patient model ID
             data['user_id'] = request.user.id  # This is the User model ID
+            data['role'] = request.user.role
             return Response(data)
         else:
             # Return basic user info
@@ -81,6 +71,8 @@ class PatientProfileUpdateView(generics.RetrieveUpdateAPIView):
             })
     
     def update(self, request, *args, **kwargs):
+        if self.get_object() is None:
+            return Response({'detail': 'Patient profile not found.'}, status=status.HTTP_404_NOT_FOUND)
         response = super().update(request, *args, **kwargs)
         
         # Log action
