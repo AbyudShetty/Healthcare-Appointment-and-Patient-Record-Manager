@@ -10,9 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-
     # --- PostgreSQL service for Django tests ---
     services:
       postgres:
@@ -54,6 +51,9 @@ jobs:
           encryption_key=$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')
           echo "::add-mask::$encryption_key"
           echo "HCRM_ENCRYPTION_KEY=$encryption_key" >> "$GITHUB_ENV"
+          secret_key=$(python -c 'import secrets; print(secrets.token_urlsafe(50))')
+          echo "::add-mask::$secret_key"
+          echo "SECRET_KEY=$secret_key" >> "$GITHUB_ENV"
           echo "DB_NAME=hcrm_db" >> $GITHUB_ENV
           echo "DB_USER=postgres" >> $GITHUB_ENV
           echo "DB_PASSWORD=password" >> $GITHUB_ENV
